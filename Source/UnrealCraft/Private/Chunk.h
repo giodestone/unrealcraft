@@ -3,97 +3,96 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseChunk.h"
+#include "ChunkMeshData.h"
 #include "GameFramework/Actor.h"
 #include "Chunk.generated.h"
 
 enum class EBlock;
-enum class EDirection;
 class FastNoise;
 class UProceduralMeshComponent;
 
+/**
+ * Holds block data for a specific area of the world.
+ */
 UCLASS()
-class AChunk : public AActor
+class AChunk : public ABaseChunk
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
-	AChunk();
-	
-	UPROPERTY(EditAnywhere, Category="Chunk")
-	int Size = 32;
+	FChunkMeshData MeshData;
+    TArray<EBlock> Blocks;
 
-	UPROPERTY(EditAnywhere, Category="Chunk")
-	int Scale = 1;
+    int VertexCount = 0;
+
+	struct FMask
+	{
+		EBlock Block;
+		int Normal;
+	};
 	
+public:	
+	AChunk();
+
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void OnInitialiseComplete() override;
+
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	TObjectPtr<UProceduralMeshComponent> Mesh;
-	TObjectPtr<FastNoise> Noise;
-
-	TArray<EBlock> Blocks;
-
-	TArray<FVector> VertexData;
-	TArray<int> TriangleData;
-	TArray<FVector2D> UVData;
-
-	int VertexCount;
-
-	// Lookup table for cube vertices.
-	const FVector BlockVertexData[8] =
-		{
-			FVector(100, 100, 100),
-			FVector(100, 0, 100),
-			FVector(100, 0, 0),
-			FVector(100,100,0),
-			FVector(0,0,100),
-			FVector(0, 100, 100),
-			FVector(0, 100, 0),
-			FVector(0,0,0)
-		};
-
-	// Indices for cube faces.
-	const int BlockTriangleData[24] =
-		{
-			0,1,2,3, // Forward
-			5,0,3,6, // Right
-			4,5,6,7, // Back
-			1,4,7,2, // Left
-			5,4,1,0, // Up
-			3,2,7,6  // Down
-		};
-
-	/// <summary> Populate blocks according to heightmap. </summary>
+private:
+	/**
+	 * Populate blocks according to heightmap.
+	 */
 	void GenerateBlocks();
 
-	/// <summary> Generates mesh from generated blocks. </summary>
+	/**
+	 * Generates mesh from generated blocks.
+	 */
 	void GenerateMesh();
 
-	/// <summary> Passes data onto <see cref="UProceduralMeshComponent"/> after mesh was generated. </summary>
+	/**
+	 * Passes data onto {@link UProceduralMeshComponent} after mesh was generated.
+	 */
 	void ApplyMesh() const;
 
-	/// <summary> Check whether position contains a block (<c>true</c>), or air (<c>false</c>). </summary>
-	bool Check(const FVector& Position) const;
-
-	/// <summary> Create a face for a block. </summary>
-	void CreateFace(EDirection Direction, FVector Position);
-
-	/// <summary> Gets the face vertices according to the lookup tables. </summary>
-	TArray<FVector> GetFaceVertices(EDirection Direction, FVector Position) const;
-
-	/// <summary> Get the coordinates of a vector in position. </summary>
-	FVector GetPositionInDirection(EDirection Direction, FVector Position) const;
+	/**
+	 * Creates vertices based on mask.
+	 * @param Mask 
+	 * @param AxisMask 
+	 * @param V1 
+	 * @param V2 
+	 * @param V3 
+	 * @param V4 
+	 */
+	void CreateQuad(FMask Mask, FIntVector AxisMask, FIntVector V1, FIntVector V2, FIntVector V3, FIntVector V4);
 	
-	/// <summary> Get the 1D index for a block at a 3D index located in <see cref="Blocks"/> array. </summary>
-	int GetBlockIndex(const int X, const int Y, const int Z) const;
+	/**
+	 * Get the block type at the index.
+	 * @remarks Contains checks for out of range.
+	 */
+	EBlock GetBlock(FIntVector Index) const;
 
-	/// <summary> Wrapper for <see cref="GetBlockIndex"/>. </summary>
-	/// <remarks> Note this casts the vector components to <c>int</c>, potentially causing errors.</remarks>
-	int GetBlockIndex(const FVector& Position) const;
+	/**
+	 * Get the 1D index for a block at a 3D index located in @link Blocks array.
+	 */
+	int32 GetBlockIndex(const int32 X, const int32 Y, const int32 Z) const;
+	
+	/**
+	 * Wrapper for @link GetBlockIndex.
+	 * @remarks Casts floats to int, potentially resulting in rounding errors.
+	 */
+	int32 GetBlockIndex(const FVector& Position) const;
+
+	/**
+	 * Wrapper for @link GetBlockIndex. 
+	 */
+	int32 GetBlockIndex(const FIntVector& Position) const;
+
+	/**
+	 * Compare if two masks are identical.
+	 */
+	bool CompareMask(const FMask M1, const FMask M2) const;
 };

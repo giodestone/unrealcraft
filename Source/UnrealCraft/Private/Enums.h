@@ -1,11 +1,18 @@
 ﻿#pragma once
 
-enum class EDirection
+/**
+ * Enum wrapper around directions.
+ * @remarks Order is important for {@link UChunk::GetFaceVertices} to work correctly.
+ */
+enum class EDirection : int32
 {
-	// Order is important for UChunk::GetFaceVertices to work correctly. Related to UChunk::BlockTriangleData order too.
+	// 
 	Forward, Right, Back, Left, Up, Down
 };
 
+/**
+ * Enum for all block types.
+ */
 enum class EBlock
 {
 	Null, Air, Stone, Dirt, Grass

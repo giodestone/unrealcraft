@@ -3,6 +3,9 @@
 
 #include "ChunkWorld.h"
 
+#include "BaseChunk.h"
+#include "FastNoise.h"
+
 
 // Sets default values
 AChunkWorld::AChunkWorld()
@@ -12,13 +15,25 @@ AChunkWorld::AChunkWorld()
 
 void AChunkWorld::GenerateInitialChunks()
 {
-	for (auto x = -DrawDistance; x < DrawDistance; x++)
+	for (auto x = -DrawDistanceAroundPlayer; x < DrawDistanceAroundPlayer; x++)
 	{
-		for (auto y = -DrawDistance; y < DrawDistance; y++)
+		for (auto y = -DrawDistanceAroundPlayer; y < DrawDistanceAroundPlayer; y++)
 		{
-			GetWorld()->SpawnActor<AActor>(Chunk, FVector(x * ChunkSize * 100, y * ChunkSize * 100, 0), FRotator::ZeroRotator);
+			auto CreatedChunk = GetWorld()->SpawnActor<ABaseChunk>(
+				ChunksToSpawn,
+				FVector(static_cast<float>(x) * NewChunkSize.X * 100.f, static_cast<float>(y) * NewChunkSize.Y * 100.f, 0.f),
+				FRotator::ZeroRotator);
+			CreatedChunk->Initialise(NoiseGenerator, NewChunkSize, FIntVector2(x, y));
 		}
 	}
+}
+
+void AChunkWorld::ConfigureNoiseGenerator()
+{
+	NoiseGenerator = new FastNoise();
+	NoiseGenerator->SetFrequency(0.03f);
+	NoiseGenerator->SetNoiseType(FastNoise::Perlin);
+	NoiseGenerator->SetFractalType(FastNoise::FractalType::FBM);
 }
 
 // Called when the game starts or when spawned
@@ -26,6 +41,7 @@ void AChunkWorld::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ConfigureNoiseGenerator();
 	GenerateInitialChunks();
 }
 
@@ -33,6 +49,6 @@ void AChunkWorld::BeginPlay()
 void AChunkWorld::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	// disabled.
 }
 

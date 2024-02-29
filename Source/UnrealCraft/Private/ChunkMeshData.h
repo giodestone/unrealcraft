@@ -3,7 +3,9 @@
 #include "CoreMinimal.h"
 #include "ChunkMeshData.generated.h"
 
-/// <summary> For storing a chunks' mesh data. </summary>
+/**
+ * For storing model data for a {@link AChunk}.
+ */
 USTRUCT()
 struct FChunkMeshData
 {

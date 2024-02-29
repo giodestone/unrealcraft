@@ -3,40 +3,56 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Chunk.h"
+#include "BaseChunk.h"
 #include "GameFramework/Actor.h"
 #include "ChunkWorld.generated.h"
 
-class AChunk;
+class FastNoise;
+class ABaseChunk;
 
+/**
+ * Overarching manager for Chunks.
+ */
 UCLASS()
 class AChunkWorld : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
-	// Sets default values for this actor's properties
 	AChunkWorld();
-
-	// TODO: Create base class for chunk
 	
-	UPROPERTY(EditAnywhere, Category="Chunk World")
-	TSubclassOf<AActor> Chunk = AChunk::StaticClass(); 
-
-	UPROPERTY(EditAnywhere, Category="Chunk World")
-	int DrawDistance = 5;
-
-	UPROPERTY(EditAnywhere, Category="Chunk World")
-	int ChunkSize = 32;
-
+	/**
+	 * Get the noise object used to generate new chunks.
+	 */
+	TObjectPtr<FastNoise> GetNoise() const { return NoiseGenerator; }
+	
 protected:
-	// Called when the game starts or when spawned
+	UPROPERTY(EditAnywhere, Category="Chunk World")
+	TSubclassOf<ABaseChunk> ChunksToSpawn = ABaseChunk::StaticClass(); 
+
+	UPROPERTY(EditAnywhere, Category="Chunk World")
+	int DrawDistanceAroundPlayer = 5;
+
+	UPROPERTY(EditAnywhere, Category="Chunks")
+	FIntVector NewChunkSize = FIntVector(32,32,128);
+
+	
+	TObjectPtr<FastNoise> NoiseGenerator;
+
+
 	virtual void BeginPlay() override;
 
+	/**
+	 * Generate the initial chunks around the player.
+	 */
 	void GenerateInitialChunks();
 
+	/**
+	 * Configure the {@link NoiseGenerator}.
+	 */
+	void ConfigureNoiseGenerator();
+
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };
