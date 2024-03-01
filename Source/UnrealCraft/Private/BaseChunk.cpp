@@ -42,6 +42,10 @@ void ABaseChunk::Initialise(const TObjectPtr<FastNoise> InNoiseGen, const FIntVe
 	OnInitialiseComplete();
 }
 
+void ABaseChunk::ModifyVoxel(const FIntVector Position, const EBlock NewBlock)
+{
+}
+
 void ABaseChunk::OnInitialiseComplete()
 {
 }

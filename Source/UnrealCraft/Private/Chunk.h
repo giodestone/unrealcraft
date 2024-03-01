@@ -41,8 +41,14 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+	void ClearMeshData();
+
+	virtual void ModifyVoxel(const FIntVector Position, const EBlock NewBlock) override;
 
 private:
+	
+	void ModifyVoxelData(const FIntVector Position, EBlock NewBlock);
+	
 	/**
 	 * Populate blocks according to heightmap.
 	 */

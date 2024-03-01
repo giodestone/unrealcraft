@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enums.h"
 #include "GameFramework/Actor.h"
 #include "BaseChunk.generated.h"
 
@@ -33,7 +34,8 @@ public:
 	 * Called by {@link AChunkWorld} to initialise this.
 	 */
 	void Initialise(const TObjectPtr<FastNoise> InNoiseGen, const FIntVector InChunkSize, const FIntVector2 InChunkLocation);
-
+	
+	virtual void ModifyVoxel(const FIntVector Position, const EBlock NewBlock);
 protected:
 	virtual void BeginPlay() override;
 

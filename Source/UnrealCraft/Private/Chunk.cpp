@@ -32,6 +32,34 @@ void AChunk::Tick(float DeltaTime)
 	// disabled.
 }
 
+void AChunk::ClearMeshData()
+{
+	VertexCount = 0;
+	MeshData.Clear();
+}
+
+void AChunk::ModifyVoxel(const FIntVector Position, const EBlock NewBlock)
+{
+	if (Position.X >= ChunkSize.X || Position.Y >= ChunkSize.Y || Position.Z >= ChunkSize.Z ||
+		Position.X < 0 || Position.Y < 0 || Position.Z < 0)
+		return;
+
+	ModifyVoxelData(Position, NewBlock);
+
+	ClearMeshData();
+	
+	GenerateMesh();
+
+	ApplyMesh();
+}
+
+void AChunk::ModifyVoxelData(const FIntVector Position, EBlock NewBlock)
+{
+	const int32 Index = GetBlockIndex(Position);
+
+	Blocks[Index] = NewBlock;
+}
+
 void AChunk::GenerateBlocks()
 {
 	const auto Location = GetActorLocation();
@@ -196,7 +224,7 @@ void AChunk::GenerateMesh()
 
 void AChunk::ApplyMesh() const
 {
-	Mesh->CreateMeshSection(0, MeshData.Vertices, MeshData.Triangles, MeshData.Normals, MeshData.UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
+	Mesh->CreateMeshSection(0, MeshData.Vertices, MeshData.Triangles, MeshData.Normals, MeshData.UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
 }
 
 void AChunk::CreateQuad(FMask Mask, FIntVector AxisMask, FIntVector V1, FIntVector V2, FIntVector V3,
