@@ -6,8 +6,8 @@
 #include "BaseChunk.h"
 #include "FastNoise.h"
 
+const FName AChunkWorld::DefaultChunkTag = "VoxelChunk";
 
-// Sets default values
 AChunkWorld::AChunkWorld()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -23,6 +23,7 @@ void AChunkWorld::GenerateInitialChunks()
 				ChunksToSpawn,
 				FVector(static_cast<float>(x) * NewChunkSize.X * 100.f, static_cast<float>(y) * NewChunkSize.Y * 100.f, 0.f),
 				FRotator::ZeroRotator);
+			CreatedChunk->Tags.Add(DefaultChunkTag);
 			CreatedChunk->Initialise(NoiseGenerator, NewChunkSize, FIntVector2(x, y));
 		}
 	}

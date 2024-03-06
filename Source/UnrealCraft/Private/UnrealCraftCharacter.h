@@ -6,24 +6,29 @@
 #include "GameFramework/Character.h"
 #include "UnrealCraftCharacter.generated.h"
 
+class UUserWidget;
+class UCameraComponent;
+
 UCLASS()
 class AUnrealCraftCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	AUnrealCraftCharacter();
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* FPSCameraComponent;
 
+	UPROPERTY(EditAnywhere)
+	float Reach = 6.f * 100.f;
+	
+	AUnrealCraftCharacter();
+	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	UFUNCTION()
@@ -33,9 +38,21 @@ public:
 	void MoveStrafe(float Value);
 
 	UFUNCTION()
-	void LookVertical(float Value);
+	void StartJump();
 
 	UFUNCTION()
-	void LookHorizontal(float Value);
+	void RepeatJump();
+	
+	UFUNCTION()
+	void StopJump();
+	
+	UFUNCTION()
+	void StartHit();
+
+	UFUNCTION()
+	void StopHit();
+
+	UFUNCTION()
+	void Interact();
 	
 };

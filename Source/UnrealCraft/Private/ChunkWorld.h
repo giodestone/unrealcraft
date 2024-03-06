@@ -19,6 +19,20 @@ class AChunkWorld : public AActor
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, Category="Chunk World")
+	TSubclassOf<ABaseChunk> ChunksToSpawn = ABaseChunk::StaticClass(); 
+
+	UPROPERTY(EditAnywhere, Category="Chunk World")
+	int32 DrawDistanceAroundPlayer = 5;
+
+	UPROPERTY(EditAnywhere, Category="Chunks")
+	FIntVector NewChunkSize = FIntVector(32,32,128);
+
+	static const FName DefaultChunkTag;
+	
+	TObjectPtr<FastNoise> NoiseGenerator;
+	
+
 	AChunkWorld();
 	
 	/**
@@ -27,19 +41,6 @@ public:
 	TObjectPtr<FastNoise> GetNoise() const { return NoiseGenerator; }
 	
 protected:
-	UPROPERTY(EditAnywhere, Category="Chunk World")
-	TSubclassOf<ABaseChunk> ChunksToSpawn = ABaseChunk::StaticClass(); 
-
-	UPROPERTY(EditAnywhere, Category="Chunk World")
-	int DrawDistanceAroundPlayer = 5;
-
-	UPROPERTY(EditAnywhere, Category="Chunks")
-	FIntVector NewChunkSize = FIntVector(32,32,128);
-
-	
-	TObjectPtr<FastNoise> NoiseGenerator;
-
-
 	virtual void BeginPlay() override;
 
 	/**

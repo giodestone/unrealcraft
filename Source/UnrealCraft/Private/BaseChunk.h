@@ -10,13 +10,10 @@
 class UProceduralMeshComponent;
 class FastNoise;
 
-/// <summary>
-///	Base class for all rendered chunks. 
-/// </summary>
-/// <remarks>
-///	<seealso cref="ChunkWorld"/>
-/// </remarks> 
-UCLASS()
+/**
+ * Base class for all rendered chunks. See also: {@link AChunk} 
+ */
+UCLASS() 
 class UNREALCRAFT_API ABaseChunk : public AActor
 {
 	GENERATED_BODY()
@@ -24,17 +21,28 @@ class UNREALCRAFT_API ABaseChunk : public AActor
 protected:
 	TObjectPtr<UProceduralMeshComponent> Mesh;
 	TObjectPtr<FastNoise> NoiseGenerator;
+
 	FIntVector ChunkSize;
-	FIntVector2 ChunkLocation;
 	
+	FIntVector2 ChunkLocation;
+
 public:
+	const FIntVector& GetChunkSize() const { return ChunkSize; }
+
+	
 	ABaseChunk();
 
 	/**
 	 * Called by {@link AChunkWorld} to initialise this.
 	 */
 	void Initialise(const TObjectPtr<FastNoise> InNoiseGen, const FIntVector InChunkSize, const FIntVector2 InChunkLocation);
-	
+
+	/**
+	 * Modify the block at the current position.
+	 * @param Position The local position of the chunk. See {@link VoxelUtils @endlink}.
+	 * @param NewBlock The new block at the location.
+	 * @remarks Doesn't rebuild mesh. Appropriate methods must be called after this.
+	 */
 	virtual void ModifyVoxel(const FIntVector Position, const EBlock NewBlock);
 protected:
 	virtual void BeginPlay() override;
