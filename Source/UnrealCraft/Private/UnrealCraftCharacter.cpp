@@ -103,7 +103,7 @@ void AUnrealCraftCharacter::StartHit()
 	check(HitChunk != nullptr)
 #endif
 
-	HitChunk->ModifyVoxel(VoxelUtils::WorldToLocalBlockPosition(HitResult.Location + HitResult.Normal, HitChunk->GetChunkSize()), EBlock::Air);
+	HitChunk->ModifyVoxel(VoxelUtils::WorldToLocalBlockPosition(HitResult.Location - HitResult.Normal, HitChunk->GetChunkSize()), EBlock::Air);
 }
 
 void AUnrealCraftCharacter::StopHit()
