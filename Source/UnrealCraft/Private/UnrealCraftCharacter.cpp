@@ -112,5 +112,26 @@ void AUnrealCraftCharacter::StopHit()
 
 void AUnrealCraftCharacter::Interact()
 {
+	FVector Start = FPSCameraComponent->GetComponentLocation();
+	FVector End = Start + (FPSCameraComponent->GetForwardVector() * Reach);
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	auto HasHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5.f);
+
+	if (!HasHit)
+		return;
+
+	if (!HitResult.GetActor()->ActorHasTag(AChunkWorld::DefaultChunkTag))
+		return;
+
+	ABaseChunk* HitChunk = Cast<ABaseChunk>(HitResult.GetActor());
+
+#if UE_BUILD_DEVELOPMENT
+	check(HitChunk != nullptr)
+#endif
+	
+	HitChunk->ModifyVoxel(VoxelUtils::WorldToLocalBlockPosition(HitResult.Location - HitResult.Normal, HitChunk->GetChunkSize()) + FIntVector(HitResult.Normal), EBlock::Stone);
 }
 
