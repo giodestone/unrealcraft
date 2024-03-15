@@ -27,6 +27,8 @@ protected:
 	FIntVector2 ChunkLocation;
 
 public:
+	TObjectPtr<UMaterialInterface> Material;
+	
 	const FIntVector& GetChunkSize() const { return ChunkSize; }
 
 	

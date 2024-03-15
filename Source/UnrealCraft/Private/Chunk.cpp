@@ -55,6 +55,9 @@ void AChunk::ModifyVoxel(const FIntVector Position, const EBlock NewBlock)
 
 void AChunk::ModifyVoxelData(const FIntVector Position, EBlock NewBlock)
 {
+	// TODO: Add adjacent chunk placing. Basically find out where is the chunk out of bounds, get it, and then modify
+	// said voxel there. IsInBounds is the beginning point.
+	
 	const int32 Index = GetBlockIndex(Position);
 
 	Blocks[Index] = NewBlock;
@@ -75,15 +78,36 @@ void AChunk::GenerateBlocks()
 
     		// TODO: Consider rewriting to use int in the first instance.
     		
-    		for (auto z = 0.f; z < Height; z += 1.f)
+    		for (auto z = 0.f; z < static_cast<float>(ChunkSize.Z); z += 1.f)
     		{
-    			Blocks[GetBlockIndex(x, y, z)] = EBlock::Stone;
+    			// top block of height should be grass
+    			// four blocks below should be dirt
+    			// everything below should be stone
+    			if (z > Height)
+    				Blocks[GetBlockIndex(x,y,z)] = EBlock::Air;
+    			else if (z == Height)
+    				Blocks[GetBlockIndex(x,y,z)] = EBlock::Grass;
+    			else if (z < Height && z > Height - 4)
+    				Blocks[GetBlockIndex(x,y,z)] = EBlock::Dirt;
+    			else
+    				Blocks[GetBlockIndex(x,y,z)] = EBlock::Stone;
+			    //
+    			//
+    			// // Blocks[GetBlockIndex(x, y, z)] = EBlock::Stone;
+    			// if (z < Height - 3)
+    			// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Stone;
+    			// else if (z < Height - 1)
+    			// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Dirt;
+    			// else if (z == Height - 1)
+    			// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Grass;
+    			// else
+    			// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Air;
     		}
 
-    		for (auto z = Height; z < static_cast<float>(ChunkSize.Z); z += 1.f)
-    		{
-    			Blocks[GetBlockIndex(x, y, z)] = EBlock::Air;
-    		}
+    		// for (auto z = Height; z < static_cast<float>(ChunkSize.Z); z += 1.f)
+    		// {
+    		// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Air;
+    		// }
     	}
     }
 }
@@ -195,7 +219,7 @@ void AChunk::GenerateMesh()
 					DeltaAxis1[Axis1] = Width;
 					DeltaAxis2[Axis2] = Height;
 
-					CreateQuad(CurrentMask, AxisMask,
+					CreateQuad(CurrentMask, AxisMask, Width, Height,
 						ChunkIteration,
 						ChunkIteration + DeltaAxis1,
 						ChunkIteration + DeltaAxis2,
@@ -224,10 +248,11 @@ void AChunk::GenerateMesh()
 
 void AChunk::ApplyMesh() const
 {
-	Mesh->CreateMeshSection(0, MeshData.Vertices, MeshData.Triangles, MeshData.Normals, MeshData.UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+	Mesh->SetMaterial(0, Material);
+	Mesh->CreateMeshSection(0, MeshData.Vertices, MeshData.Triangles, MeshData.Normals, MeshData.UV0, MeshData.Colors, TArray<FProcMeshTangent>(), true);
 }
 
-void AChunk::CreateQuad(FMask Mask, FIntVector AxisMask, FIntVector V1, FIntVector V2, FIntVector V3,
+void AChunk::CreateQuad(FMask Mask, FIntVector AxisMask, const int Width, const int Height, FIntVector V1, FIntVector V2, FIntVector V3,
 	FIntVector V4)
 {
 	const auto Normal = FVector(AxisMask * Mask.Normal);
@@ -244,11 +269,27 @@ void AChunk::CreateQuad(FMask Mask, FIntVector AxisMask, FIntVector V1, FIntVect
 	MeshData.Triangles.Add(VertexCount + 1 - Mask.Normal);
 	MeshData.Triangles.Add(VertexCount + 1 + Mask.Normal);
 
-	// Unscaled to see faces stretched out.
-	MeshData.UV0.Add(FVector2D(0, 0));
-	MeshData.UV0.Add(FVector2D(0, 1));
-	MeshData.UV0.Add(FVector2D(1, 0));
-	MeshData.UV0.Add(FVector2D(1, 1));
+	if (Normal.X == 1 || Normal.X == -1)
+	{
+		MeshData.UV0.Append({
+			FVector2D(Width, Height),
+			FVector2D(0, Height),
+			FVector2D(Width, 0),
+			FVector2D(0, 0),
+		});
+	}
+	else
+	{
+		MeshData.UV0.Append({
+			FVector2D(Height, Width),
+			FVector2D(Height, 0),
+			FVector2D(0, Width),
+			FVector2D(0, 0),
+		});
+	}
+
+	auto Color = FColor(0, 0, 0, GetTextureIndex(Mask.Block, Normal));
+	MeshData.Colors.Append({ Color, Color, Color, Color });
 
 	MeshData.Normals.Add(Normal);
 	MeshData.Normals.Add(Normal);
@@ -285,5 +326,41 @@ int32 AChunk::GetBlockIndex(const FIntVector& Position) const
 bool AChunk::CompareMask(const FMask M1, const FMask M2) const
 {
 	return M1.Block == M2.Block && M1.Normal == M2.Normal;
+}
+
+int8 AChunk::GetTextureIndex(EBlock Block, FVector Normal) const
+{
+	switch (Block)
+	{
+	case EBlock::Grass:
+		if (Normal == FVector::UpVector) // TODO: Fix floating point precision.
+			return 0;
+		if (Normal == FVector::DownVector)
+			return 2;
+		return 1;
+		
+	case EBlock::Dirt:
+		return 2;
+		
+	case EBlock::Stone:
+		return 3;
+		
+	default:
+#if UE_BUILD_DEVELOPMENT
+			UE_LOG(LogTemp,	Warning, TEXT("[Chunk::GetTextureIndex]: Unset value for texture index. Returning 0."));
+#endif
+		return 0;
+	}
+}
+
+bool AChunk::IsInBounds(int32 X, int32 Y, int32 Z) const
+{
+	return X >= 0 && Y >= 0 && Z >= 0 &&
+		X < ChunkSize.X && Y < ChunkSize.Y && ChunkSize.Z < Z;
+}
+
+bool AChunk::IsInBounds(FIntVector Coords) const
+{
+	return IsInBounds(Coords.X, Coords.Y, Coords.Z);
 }
 

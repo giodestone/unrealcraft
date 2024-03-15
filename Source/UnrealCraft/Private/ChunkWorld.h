@@ -27,6 +27,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Chunks")
 	FIntVector NewChunkSize = FIntVector(32,32,128);
+	
+	UPROPERTY(EditInstanceOnly, Category="Chunks")
+	TObjectPtr<UMaterialInterface> ChunkMaterial;
 
 	static const FName DefaultChunkTag;
 	
@@ -39,7 +42,7 @@ public:
 	 * Get the noise object used to generate new chunks.
 	 */
 	TObjectPtr<FastNoise> GetNoise() const { return NoiseGenerator; }
-	
+
 protected:
 	virtual void BeginPlay() override;
 

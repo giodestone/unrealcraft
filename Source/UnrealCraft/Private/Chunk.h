@@ -66,14 +66,8 @@ private:
 
 	/**
 	 * Creates vertices based on mask.
-	 * @param Mask 
-	 * @param AxisMask 
-	 * @param V1 
-	 * @param V2 
-	 * @param V3 
-	 * @param V4 
 	 */
-	void CreateQuad(FMask Mask, FIntVector AxisMask, FIntVector V1, FIntVector V2, FIntVector V3, FIntVector V4);
+	void CreateQuad(FMask Mask, FIntVector AxisMask, const int Width, const int Height, FIntVector V1, FIntVector V2, FIntVector V3, FIntVector V4);
 	
 	/**
 	 * Get the block type at the index.
@@ -83,6 +77,7 @@ private:
 
 	/**
 	 * Get the 1D index for a block at a 3D index located in @link Blocks array.
+	 * @remarks Doesn't check if the coordinate is in bounds.
 	 */
 	int32 GetBlockIndex(const int32 X, const int32 Y, const int32 Z) const;
 	
@@ -101,4 +96,21 @@ private:
 	 * Compare if two masks are identical.
 	 */
 	bool CompareMask(const FMask M1, const FMask M2) const;
+
+	/**
+	 * Get the texture index inside a Texture2DArray for a face.
+	 * @param Block The block to get the details for.
+	 * @param Normal The normal of the surface.
+	 */
+	int8 GetTextureIndex(EBlock Block, FVector Normal) const;
+
+	/**
+	 * Whether the coordinate is within the chunk bounds.
+	 */
+	bool IsInBounds(int32 X, int32 Y, int32 Z) const;
+
+	/**
+	 * Wrapper for {@link IsInBounds}.
+	 */
+	bool IsInBounds(FIntVector Coords) const;
 };

@@ -24,6 +24,7 @@ void AChunkWorld::GenerateInitialChunks()
 				FVector(static_cast<float>(x) * NewChunkSize.X * 100.f, static_cast<float>(y) * NewChunkSize.Y * 100.f, 0.f),
 				FRotator::ZeroRotator);
 			CreatedChunk->Tags.Add(DefaultChunkTag);
+			CreatedChunk->Material = ChunkMaterial;
 			CreatedChunk->Initialise(NoiseGenerator, NewChunkSize, FIntVector2(x, y));
 		}
 	}
