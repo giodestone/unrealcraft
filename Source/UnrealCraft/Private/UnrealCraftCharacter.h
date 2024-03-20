@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Enums.h"
 #include "UnrealCraftCharacter.generated.h"
 
+class ABaseChunk;
 class UUserWidget;
 class UCameraComponent;
 
@@ -54,5 +56,7 @@ public:
 
 	UFUNCTION()
 	void Interact();
-	
+
+private:
+	void PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block);
 };

@@ -4,10 +4,12 @@
 #include "UnrealCraftCharacter.h"
 
 #include "ChunkWorld.h"
+#include "VoxelGameState.h"
 #include "VoxelUtils.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "UnrealCraft/Public/Inventory.h"
 
 AUnrealCraftCharacter::AUnrealCraftCharacter()
 {
@@ -131,7 +133,36 @@ void AUnrealCraftCharacter::Interact()
 #if UE_BUILD_DEVELOPMENT
 	check(HitChunk != nullptr)
 #endif
+
+	switch (auto HitBlock = HitChunk->GetBlock(VoxelUtils::WorldToLocalBlockPosition(HitResult.Location - HitResult.Normal, HitChunk->GetChunkSize())))
+	{
+	case EBlock::Inventory:
+		{
+			TSharedPtr<IInventoryInterface> WorldInventory;
+			if (GetWorld()->GetGameState<AVoxelGameState>()->GetInventoryDatabase().GetWorldInventory(VoxelUtils::WorldToBlockPosition(HitResult.Location), WorldInventory))
+			{
+				WorldInventory->Open();
+			}
+		}
+		break;
 	
-	HitChunk->ModifyVoxel(VoxelUtils::WorldToLocalBlockPosition(HitResult.Location - HitResult.Normal, HitChunk->GetChunkSize()) + FIntVector(HitResult.Normal), EBlock::Stone);
+	default:
+		PlaceBlock(HitChunk, HitResult.Location - HitResult.Normal, HitResult.Normal, EBlock::Inventory);
+		break;
+		
+	}
+}
+
+void AUnrealCraftCharacter::PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block)
+{
+	switch (Block)
+	{
+	case EBlock::Inventory:
+		GetWorld()->GetGameState<AVoxelGameState>()->GetInventoryDatabase().AddWorldInventory(VoxelUtils::WorldToBlockPosition(WorldPos), MakeShared<Inventory>());
+		// goto default;
+	default:
+		Chunk->ModifyVoxel(VoxelUtils::WorldToLocalBlockPosition(WorldPos, Chunk->GetChunkSize()) + FIntVector(HitNormal), Block);
+		break;
+	}
 }
 

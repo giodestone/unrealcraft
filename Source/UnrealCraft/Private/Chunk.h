@@ -45,6 +45,13 @@ public:
 
 	virtual void ModifyVoxel(const FIntVector Position, const EBlock NewBlock) override;
 
+	/**
+	 * Check what block is at the coordinate.
+	 * @remarks Returns air if out of bounds.
+	 * @param Coord Where to check the for the block.
+	 * @return The block at that coordinate
+	 */
+	virtual EBlock GetBlock(const FIntVector& Coord) const override;
 private:
 	
 	void ModifyVoxelData(const FIntVector Position, EBlock NewBlock);
@@ -68,12 +75,6 @@ private:
 	 * Creates vertices based on mask.
 	 */
 	void CreateQuad(FMask Mask, FIntVector AxisMask, const int Width, const int Height, FIntVector V1, FIntVector V2, FIntVector V3, FIntVector V4);
-	
-	/**
-	 * Get the block type at the index.
-	 * @remarks Contains checks for out of range.
-	 */
-	EBlock GetBlock(FIntVector Index) const;
 
 	/**
 	 * Get the 1D index for a block at a 3D index located in @link Blocks array.

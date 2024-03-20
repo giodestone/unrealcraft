@@ -68,6 +68,17 @@ void AChunk::ModifyVoxel(const FIntVector Position, const EBlock NewBlock)
 	ApplyMesh();
 }
 
+EBlock AChunk::GetBlock(const FIntVector& Coord) const
+{
+	if (Coord.X >= ChunkSize.X || Coord.Y >= ChunkSize.Y || Coord.Z >= ChunkSize.Z ||
+	Coord.X < 0 || Coord.Y < 0 || Coord.Z < 0)
+		return EBlock::Air;
+	
+	const int32 Index = GetBlockIndex(Coord);
+
+	return Blocks[Index];
+}
+
 void AChunk::ModifyVoxelData(const FIntVector Position, EBlock NewBlock)
 {
 	const int32 Index = GetBlockIndex(Position);
@@ -293,15 +304,6 @@ void AChunk::CreateQuad(FMask Mask, FIntVector AxisMask, const int Width, const 
 	MeshData.Normals.Add(Normal);
 
 	VertexCount += 4;
-}
-
-EBlock AChunk::GetBlock(FIntVector Index) const
-{
-	if (Index.X >= ChunkSize.X || Index.Y >= ChunkSize.Y || Index.Z >= ChunkSize.Z ||
-		Index.X < 0 || Index.Y < 0 || Index.Z < 0)
-		return EBlock::Air;
-
-	return Blocks[GetBlockIndex(Index)];
 }
 
 int32 AChunk::GetBlockIndex(const int32 X, const int32 Y, const int32 Z) const

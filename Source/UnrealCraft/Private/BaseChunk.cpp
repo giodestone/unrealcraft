@@ -47,6 +47,11 @@ void ABaseChunk::ModifyVoxel(const FIntVector Position, const EBlock NewBlock)
 {
 }
 
+EBlock ABaseChunk::GetBlock(const FIntVector& Coord) const
+{
+	return EBlock::Null;
+}
+
 void ABaseChunk::OnInitialiseComplete()
 {
 }

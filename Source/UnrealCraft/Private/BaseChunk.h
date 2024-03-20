@@ -28,12 +28,16 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, Category="Chunk")
 	FIntVector ChunkSize;
+
 	UPROPERTY(VisibleInstanceOnly, Category="Chunk")
 	FIntVector2 ChunkLocation;
 
 public:
+
 	const FIntVector2& GetChunkLocation() const { return ChunkLocation; }
+
 	const FIntVector& GetChunkSize() const { return ChunkSize; }
+
 	TObjectPtr<AChunkWorld> GetChunkWorld() const { return ChunkWorld; }
 
 	TObjectPtr<UMaterialInterface> Material;
@@ -52,16 +56,23 @@ public:
 	 * @remarks Doesn't rebuild mesh. Appropriate methods must be called after this.
 	 */
 	virtual void ModifyVoxel(const FIntVector Position, const EBlock NewBlock);
+
+	/**
+	 * Check what block is at the coordinate.
+	 * @remarks Out of bounds behaviour is defined per deriving class.
+	 */
+	virtual EBlock GetBlock(const FIntVector& Coord) const;
+
+	virtual void Tick(float DeltaTime) override;
+
 protected:
+
 	virtual void BeginPlay() override;
 
 	/**
 	 * For logic that should be performed after the chunk is initialised. Abstract.
 	 */
 	virtual void OnInitialiseComplete();
-
-public:
-	virtual void Tick(float DeltaTime) override;
 
 private:
 

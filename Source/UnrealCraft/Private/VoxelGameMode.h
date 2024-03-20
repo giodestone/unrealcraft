@@ -18,4 +18,5 @@ public:
 	 AVoxelGameMode();
 	
 	virtual void StartPlay() override;
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 };
