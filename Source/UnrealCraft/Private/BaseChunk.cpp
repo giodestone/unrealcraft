@@ -33,11 +33,12 @@ void ABaseChunk::SetupMesh()
 	SetRootComponent(Mesh);
 }
 
-void ABaseChunk::Initialise(const TObjectPtr<FastNoise> InNoiseGen, const FIntVector InChunkSize, const FIntVector2 InChunkLocation)
+void ABaseChunk::Initialise(const TObjectPtr<FastNoise> InNoiseGen, const FIntVector InChunkSize, const FIntVector2 InChunkLocation, const TObjectPtr<AChunkWorld> InChunkWorld)
 {
 	this->NoiseGenerator = InNoiseGen;
 	this->ChunkSize = InChunkSize;
 	this->ChunkLocation = InChunkLocation;
+	this->ChunkWorld = InChunkWorld;
 
 	OnInitialiseComplete();
 }

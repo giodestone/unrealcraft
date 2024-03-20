@@ -18,6 +18,7 @@ class AChunkWorld : public AActor
 {
 	GENERATED_BODY()
 
+	TMap<FIntVector2, TObjectPtr<ABaseChunk>> Chunks;
 public:
 	UPROPERTY(EditAnywhere, Category="Chunk World")
 	TSubclassOf<ABaseChunk> ChunksToSpawn = ABaseChunk::StaticClass(); 
@@ -58,5 +59,14 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+
+	/**
+	 * Get the adjacent chunk if possible.
+	 * @param CurrentChunk The current chunk.
+	 * @param Direction Which to check in. -x = Left, -y = Back.
+	 * @param AdjacentChunk Returns the chunk, if found.
+	 * @return True if an adjacent chunk is possible, false if not.
+	 */
+	bool GetAdjacentChunk(TObjectPtr<ABaseChunk> CurrentChunk, EDirection Direction, TObjectPtr<ABaseChunk>& AdjacentChunk);
 
 };

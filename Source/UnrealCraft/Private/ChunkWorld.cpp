@@ -15,6 +15,8 @@ AChunkWorld::AChunkWorld()
 
 void AChunkWorld::GenerateInitialChunks()
 {
+	Chunks.Empty(DrawDistanceAroundPlayer * 2 * 2);
+	
 	for (auto x = -DrawDistanceAroundPlayer; x < DrawDistanceAroundPlayer; x++)
 	{
 		for (auto y = -DrawDistanceAroundPlayer; y < DrawDistanceAroundPlayer; y++)
@@ -25,7 +27,8 @@ void AChunkWorld::GenerateInitialChunks()
 				FRotator::ZeroRotator);
 			CreatedChunk->Tags.Add(DefaultChunkTag);
 			CreatedChunk->Material = ChunkMaterial;
-			CreatedChunk->Initialise(NoiseGenerator, NewChunkSize, FIntVector2(x, y));
+			CreatedChunk->Initialise(NoiseGenerator, NewChunkSize, FIntVector2(x, y), this);
+			Chunks.Add(FIntVector2(x, y), CreatedChunk);
 		}
 	}
 }
@@ -52,5 +55,45 @@ void AChunkWorld::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	// disabled.
+}
+
+bool AChunkWorld::GetAdjacentChunk(TObjectPtr<ABaseChunk> CurrentChunk, EDirection Direction, TObjectPtr<ABaseChunk>& AdjacentChunk)
+{
+	check(CurrentChunk != nullptr);
+
+	FIntVector2 ChunkPolling;
+
+	switch (Direction)
+	{
+		case EDirection::Forward:
+			ChunkPolling = FIntVector2(CurrentChunk->GetChunkLocation() + FIntVector2(0, 1));
+			break;
+
+		case EDirection::Back:
+			ChunkPolling = FIntVector2(CurrentChunk->GetChunkLocation() + FIntVector2(0, -1));
+			break;
+
+		case EDirection::Left:
+			ChunkPolling = FIntVector2(CurrentChunk->GetChunkLocation() + FIntVector2(-1, 0));
+			break;
+
+		case EDirection::Right:
+			ChunkPolling = FIntVector2(CurrentChunk->GetChunkLocation() + FIntVector2(1, 0));
+			break;
+
+		default:
+		case EDirection::Up:
+		case EDirection::Down:
+			UE_LOG(LogTemp, Error, TEXT("[ChunkWorld::GetAdjacentChunk]: Unsupported chunk adjaceny arguemnt."));
+			return false;
+	}
+
+	if (Chunks.Contains(ChunkPolling))
+	{
+		AdjacentChunk = Chunks[ChunkPolling];
+		return true;
+	}
+
+	return false;
 }
 

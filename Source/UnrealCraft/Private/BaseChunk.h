@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "BaseChunk.generated.h"
 
+class AChunkWorld;
 class UProceduralMeshComponent;
 class FastNoise;
 
@@ -22,22 +23,27 @@ protected:
 	TObjectPtr<UProceduralMeshComponent> Mesh;
 	TObjectPtr<FastNoise> NoiseGenerator;
 
+	UPROPERTY(VisibleInstanceOnly, Category="Chunk")
+	TObjectPtr<AChunkWorld> ChunkWorld;
+
+	UPROPERTY(VisibleInstanceOnly, Category="Chunk")
 	FIntVector ChunkSize;
-	
+	UPROPERTY(VisibleInstanceOnly, Category="Chunk")
 	FIntVector2 ChunkLocation;
 
 public:
-	TObjectPtr<UMaterialInterface> Material;
-	
+	const FIntVector2& GetChunkLocation() const { return ChunkLocation; }
 	const FIntVector& GetChunkSize() const { return ChunkSize; }
+	TObjectPtr<AChunkWorld> GetChunkWorld() const { return ChunkWorld; }
 
+	TObjectPtr<UMaterialInterface> Material;
 	
 	ABaseChunk();
 
 	/**
 	 * Called by {@link AChunkWorld} to initialise this.
 	 */
-	void Initialise(const TObjectPtr<FastNoise> InNoiseGen, const FIntVector InChunkSize, const FIntVector2 InChunkLocation);
+	void Initialise(const TObjectPtr<FastNoise> InNoiseGen, const FIntVector InChunkSize, const FIntVector2 InChunkLocation, const TObjectPtr<AChunkWorld> InChunkWorld);
 
 	/**
 	 * Modify the block at the current position.

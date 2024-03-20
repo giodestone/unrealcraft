@@ -3,6 +3,7 @@
 
 #include "Chunk.h"
 
+#include "ChunkWorld.h"
 #include "Enums.h"
 #include "ProceduralMeshComponent.h"
 #include "FastNoise.h"
@@ -40,9 +41,23 @@ void AChunk::ClearMeshData()
 
 void AChunk::ModifyVoxel(const FIntVector Position, const EBlock NewBlock)
 {
-	if (Position.X >= ChunkSize.X || Position.Y >= ChunkSize.Y || Position.Z >= ChunkSize.Z ||
-		Position.X < 0 || Position.Y < 0 || Position.Z < 0)
+	if (!IsInBounds(Position))
+	{
+		TObjectPtr<ABaseChunk> AdjacentChunk;
+		FIntVector OutCoord;
+		auto IsSuccessful = GetChunkWorld()->GetAdjacentChunk(this, GetCoordinateOverflowDirection(Position, OutCoord),AdjacentChunk);
+
+		if (!IsSuccessful)
+		{
+#if UE_BUILD_DEVELOPMENT
+			UE_LOG(LogTemp, Error, TEXT("[AChunk::ModifyVoxelData]: Unable to get the adjacent chunk and modify."))
+#endif
+			return;
+		}
+
+		AdjacentChunk->ModifyVoxel(OutCoord, NewBlock);
 		return;
+	}
 
 	ModifyVoxelData(Position, NewBlock);
 
@@ -55,9 +70,6 @@ void AChunk::ModifyVoxel(const FIntVector Position, const EBlock NewBlock)
 
 void AChunk::ModifyVoxelData(const FIntVector Position, EBlock NewBlock)
 {
-	// TODO: Add adjacent chunk placing. Basically find out where is the chunk out of bounds, get it, and then modify
-	// said voxel there. IsInBounds is the beginning point.
-	
 	const int32 Index = GetBlockIndex(Position);
 
 	Blocks[Index] = NewBlock;
@@ -91,23 +103,7 @@ void AChunk::GenerateBlocks()
     				Blocks[GetBlockIndex(x,y,z)] = EBlock::Dirt;
     			else
     				Blocks[GetBlockIndex(x,y,z)] = EBlock::Stone;
-			    //
-    			//
-    			// // Blocks[GetBlockIndex(x, y, z)] = EBlock::Stone;
-    			// if (z < Height - 3)
-    			// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Stone;
-    			// else if (z < Height - 1)
-    			// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Dirt;
-    			// else if (z == Height - 1)
-    			// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Grass;
-    			// else
-    			// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Air;
     		}
-
-    		// for (auto z = Height; z < static_cast<float>(ChunkSize.Z); z += 1.f)
-    		// {
-    		// 	Blocks[GetBlockIndex(x, y, z)] = EBlock::Air;
-    		// }
     	}
     }
 }
@@ -347,7 +343,7 @@ int8 AChunk::GetTextureIndex(EBlock Block, FVector Normal) const
 		
 	default:
 #if UE_BUILD_DEVELOPMENT
-			UE_LOG(LogTemp,	Warning, TEXT("[Chunk::GetTextureIndex]: Unset value for texture index. Returning 0."));
+			UE_LOG(LogTemp,	Warning, TEXT("[AChunk::GetTextureIndex]: Unset value for texture index. Returning 0."));
 #endif
 		return 0;
 	}
@@ -356,11 +352,43 @@ int8 AChunk::GetTextureIndex(EBlock Block, FVector Normal) const
 bool AChunk::IsInBounds(int32 X, int32 Y, int32 Z) const
 {
 	return X >= 0 && Y >= 0 && Z >= 0 &&
-		X < ChunkSize.X && Y < ChunkSize.Y && ChunkSize.Z < Z;
+		X < ChunkSize.X && Y < ChunkSize.Y && Z < ChunkSize.Z;
 }
 
 bool AChunk::IsInBounds(FIntVector Coords) const
 {
 	return IsInBounds(Coords.X, Coords.Y, Coords.Z);
+}
+
+EDirection AChunk::GetCoordinateOverflowDirection(const FIntVector& Coord, FIntVector& OutCoord) const
+{
+	OutCoord = FIntVector(Coord);
+	
+	if (Coord.X > this->GetChunkSize().X)
+	{
+		OutCoord.X = 0;
+		return EDirection::Right;
+	}
+	else if (Coord.X < 0)
+	{
+		OutCoord.X = this->GetChunkSize().X - 1;
+		return EDirection::Left;
+	}
+	else if (Coord.Y > this->GetChunkSize().Y)
+	{
+		OutCoord.Y = 0;
+		return EDirection::Forward;
+	}
+	else if (Coord.Y < 0)
+	{
+		OutCoord.Y = this->GetChunkSize().Y - 1;
+		return EDirection::Back;
+	}
+
+#if UE_BUILD_DEVELOPMENT
+	UE_LOG(LogTemp, Error, TEXT("[AChunk::GetCoordinateOverflowDirection]: Arg Coord error. Coord overflow is in Z or no chunk overlow present. This function will return down."))
+#endif
+	
+	return EDirection::Down;
 }
 

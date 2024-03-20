@@ -113,4 +113,14 @@ private:
 	 * Wrapper for {@link IsInBounds}.
 	 */
 	bool IsInBounds(FIntVector Coords) const;
+
+	/**
+	 * Get the direction of the overflow.
+	 * @remark Will not check if the coordinate is out of bounds and will result in an invalid direction. Use {@link IsInBounds} to verify.
+	 * @remark Will only check up to one adjacent chunk over in X or Y. *Not* in XY.
+	 * @param Coord The overflowing coordinate.
+	 * @param OutCoord The scaled coordinate.
+	 * @return The equivalent direction.
+	 */
+	EDirection GetCoordinateOverflowDirection(const FIntVector& Coord, FIntVector& OutCoord) const;
 };
