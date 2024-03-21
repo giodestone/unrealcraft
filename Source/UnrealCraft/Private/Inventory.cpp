@@ -24,17 +24,17 @@ bool Inventory::Close()
 	return false;
 }
 
-bool Inventory::InsertAnywhere()
+bool Inventory::InsertAnywhere(UUnrealCraftItem* Item)
 {
 	return false;
 }
 
-bool Inventory::InsertInto(const FIntVector2& Coord)
+bool Inventory::InsertInto(const FIntVector2& Coord, UUnrealCraftItem* Item)
 {
 	return false;
 }
 
-bool Inventory::RemoveFrom(const FIntVector2& Coord)
+bool Inventory::RemoveFrom(const FIntVector2& Coord, UUnrealCraftItem*& OutItem)
 {
 	return false;
 }

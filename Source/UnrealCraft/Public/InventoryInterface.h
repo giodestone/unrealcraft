@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "UnrealCraft/Private/UnrealCraftItem.h"
 #include "InventoryInterface.generated.h"
 
 // This class does not need to be modified.
@@ -29,13 +30,13 @@ public:
 	virtual bool Close() = 0;
 	
 	UFUNCTION()
-	virtual bool InsertAnywhere() = 0;
+	virtual bool InsertAnywhere(UUnrealCraftItem* Item) = 0;
 	
 	UFUNCTION()
-	virtual bool InsertInto(const FIntVector2& Coord/*, TSharedPtr<Stack> InItemStack*/) = 0;
+	virtual bool InsertInto(const FIntVector2& Coord, UUnrealCraftItem* Item) = 0;
 
 	UFUNCTION()
-	virtual bool RemoveFrom(const FIntVector2& Coord/*, TSharedPtr<Stack> OutItemStack*/) = 0;
+	virtual bool RemoveFrom(const FIntVector2& Coord, UUnrealCraftItem*& OutItem) = 0;
 	
 	UFUNCTION()
 	virtual bool IsFull() const = 0;

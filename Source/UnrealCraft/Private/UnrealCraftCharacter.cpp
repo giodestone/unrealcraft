@@ -120,7 +120,7 @@ void AUnrealCraftCharacter::Interact()
 	FCollisionQueryParams CollisionParams;
 	auto HasHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5.f);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 15.f);
 
 	if (!HasHit)
 		return;
@@ -134,12 +134,14 @@ void AUnrealCraftCharacter::Interact()
 	check(HitChunk != nullptr)
 #endif
 
+	DrawDebugSphere(GetWorld(), HitResult.Location, 1.f, 10, FColor::Green, false, 15.f);
+	DrawDebugLine(GetWorld(), HitResult.Location, HitResult.Location - (HitResult.Normal*10.f), FColor::Green, false, 15.f);
 	switch (auto HitBlock = HitChunk->GetBlock(VoxelUtils::WorldToLocalBlockPosition(HitResult.Location - HitResult.Normal, HitChunk->GetChunkSize())))
 	{
 	case EBlock::Inventory:
 		{
 			TSharedPtr<IInventoryInterface> WorldInventory;
-			if (GetWorld()->GetGameState<AVoxelGameState>()->GetInventoryDatabase().GetWorldInventory(VoxelUtils::WorldToBlockPosition(HitResult.Location), WorldInventory))
+			if (GetWorld()->GetGameState<AVoxelGameState>()->GetInventoryDatabase().GetWorldInventory(VoxelUtils::WorldToBlockPosition(HitResult.Location - HitResult.Normal), WorldInventory))
 			{
 				WorldInventory->Open();
 			}
@@ -158,7 +160,7 @@ void AUnrealCraftCharacter::PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPo
 	switch (Block)
 	{
 	case EBlock::Inventory:
-		GetWorld()->GetGameState<AVoxelGameState>()->GetInventoryDatabase().AddWorldInventory(VoxelUtils::WorldToBlockPosition(WorldPos), MakeShared<Inventory>());
+		GetWorld()->GetGameState<AVoxelGameState>()->GetInventoryDatabase().AddWorldInventory(VoxelUtils::WorldToBlockPosition(WorldPos) + FIntVector(HitNormal), MakeShared<Inventory>());
 		// goto default;
 	default:
 		Chunk->ModifyVoxel(VoxelUtils::WorldToLocalBlockPosition(WorldPos, Chunk->GetChunkSize()) + FIntVector(HitNormal), Block);

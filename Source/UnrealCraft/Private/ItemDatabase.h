@@ -11,10 +11,10 @@
  * Contains an editor-friendly way of adding a read-only database of all items in the game.
  */
 UCLASS()
-class UItemDatabase : public UDataAsset
+class UItemInfoDatabase : public UDataAsset
 {
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TArray<FUnrealCraftItemInfo> Items;
+	TArray<UUnrealCraftItemInfo*> Items;
 };

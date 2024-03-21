@@ -7,10 +7,10 @@
 /**
  * Info about an item that can be placed into an inventory.
  */
-USTRUCT()
-struct FUnrealCraftItemInfo
+UCLASS()
+class UUnrealCraftItemInfo : public UObject
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
  
 	UPROPERTY(EditAnywhere)
 	FString ItemName = "Unnamed Item";
