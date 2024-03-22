@@ -12,7 +12,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
-#include "UnrealCraft/Public/Inventory.h"
+#include "Inventory.h"
 
 AUnrealCraftCharacter::AUnrealCraftCharacter()
 {
@@ -28,6 +28,19 @@ AUnrealCraftCharacter::AUnrealCraftCharacter()
 void AUnrealCraftCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GameState = Cast<AVoxelGameState>(GetWorld()->GetGameState());
+	if (GameState == nullptr)
+	{
+		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get gamestate."));
+	}
+
+	PlayerHUD = Cast<APlayerHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	if (PlayerHUD == nullptr)
+	{
+		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get hud."));
+	}
+
 }
 
 void AUnrealCraftCharacter::Tick(float DeltaTime)
@@ -121,7 +134,7 @@ void AUnrealCraftCharacter::Interact()
 	FCollisionQueryParams CollisionParams;
 	auto HasHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 15.f);
+	// DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 15.f);
 
 	if (!HasHit)
 		return;
@@ -135,16 +148,17 @@ void AUnrealCraftCharacter::Interact()
 	check(HitChunk != nullptr)
 #endif
 
-	DrawDebugSphere(GetWorld(), HitResult.Location, 1.f, 10, FColor::Green, false, 15.f);
-	DrawDebugLine(GetWorld(), HitResult.Location, HitResult.Location - (HitResult.Normal*10.f), FColor::Green, false, 15.f);
+	// DrawDebugSphere(GetWorld(), HitResult.Location, 1.f, 10, FColor::Green, false, 15.f);
+	// DrawDebugLine(GetWorld(), HitResult.Location, HitResult.Location - (HitResult.Normal*10.f), FColor::Green, false, 15.f);
+
 	switch (auto HitBlock = HitChunk->GetBlock(VoxelUtils::WorldToLocalBlockPosition(HitResult.Location - HitResult.Normal, HitChunk->GetChunkSize())))
 	{
 	case EBlock::Inventory:
 		{
 			TSharedPtr<IInventoryInterface> WorldInventory;
-			if (GetWorld()->GetGameState<AVoxelGameState>()->GetInventoryDatabase().GetWorldInventory(VoxelUtils::WorldToBlockPosition(HitResult.Location - HitResult.Normal), WorldInventory))
+			if (GameState->GetInventoryDatabase().GetWorldInventory(VoxelUtils::WorldToBlockPosition(HitResult.Location - HitResult.Normal), WorldInventory))
 			{
-				WorldInventory->Open();
+				PlayerHUD->GetInventoryScreenWidget()->ShowBothInventories(GameState->GetPlayerInventory().Get(), WorldInventory.Get());
 			}
 		}
 		break;
@@ -158,36 +172,20 @@ void AUnrealCraftCharacter::Interact()
 
 void AUnrealCraftCharacter::PlayerInventory()
 {
-	// TODO: if this ever goes multiplayer, this needs to be fixed probably.
+	bool IsInventoryMenuDisplayed;
+	PlayerHUD->GetInventoryScreenWidget()->TogglePlayerInventory(GameState->GetPlayerInventory(), IsInventoryMenuDisplayed);
 
-	auto GameState = Cast<AVoxelGameState>(GetWorld()->GetGameState());
-	
-	if (GameState == nullptr)
+	if (IsInventoryMenuDisplayed)
 	{
-		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get gamestate."));
-		return;
+		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
+		GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
+	}
+	else
+	{
+		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameOnly());
+		GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(false);
 	}
 		
-	// get player inventory (jeez)
-	TSharedPtr<IInventoryInterface> PlayerInventory;
-	GameState->GetInventoryDatabase().GetEntityInventory(
-			"Player", PlayerInventory);
-	
-	if (PlayerInventory == nullptr)
-	{
-		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get player inventory."));
-		return;
-	}
-	
-	auto PlayerHUD = Cast<APlayerHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
-	
-	if (PlayerHUD == nullptr)
-	{
-		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get hud."));
-		return;
-	}
-	
-	PlayerHUD->GetInventoryScreenWidget()->ShowPlayerInventory(PlayerInventory);
 }
 
 void AUnrealCraftCharacter::PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block)

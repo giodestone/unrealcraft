@@ -17,4 +17,7 @@ class UItemInfoDatabase : public UDataAsset
 
 	UPROPERTY(EditAnywhere)
 	TMap<FString, FUnrealCraftItemInfo> Items;
+
+public:
+	FUnrealCraftItemInfo GetInfo(const FString& ID) const;
 };

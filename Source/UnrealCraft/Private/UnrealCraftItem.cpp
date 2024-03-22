@@ -3,6 +3,16 @@
 
 #include "UnrealCraftItem.h"
 
+FString UUnrealCraftItem::GetAssociatedItemID() const
+{
+	return AssociatedItemID;
+}
+
+int8 UUnrealCraftItem::GetCurrentStack() const
+{
+	return CurrentStack;
+}
+
 UUnrealCraftItem::UUnrealCraftItem()
 {
 }

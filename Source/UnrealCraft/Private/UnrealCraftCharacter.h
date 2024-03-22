@@ -8,6 +8,8 @@
 #include "PlayerHUD.h"
 #include "UnrealCraftCharacter.generated.h"
 
+class AVoxelGameMode;
+class AVoxelGameState;
 class APlayerHUD;
 class ABaseChunk;
 class UUserWidget;
@@ -18,6 +20,12 @@ class AUnrealCraftCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	TObjectPtr<AVoxelGameState> GameState;
+
+	UPROPERTY()
+	TObjectPtr<APlayerHUD> PlayerHUD;
+	
 public:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* FPSCameraComponent;

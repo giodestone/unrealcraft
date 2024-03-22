@@ -4,4 +4,5 @@
 #include "VoxelGameState.h"
 
 #include "GameFramework/PlayerState.h"
-#include "UnrealCraft/Public/PlayerInventory.h"
+#include "PlayerInventory.h"
+#include "InventoryVisualizerWidget.h"

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "InventoryDatabase.h"
 #include "GameFramework/GameStateBase.h"
+#include "InventoryVisualizerWidget.h"
 #include "VoxelGameState.generated.h"
 
 class UItemInfoDatabase;
@@ -19,12 +20,25 @@ class AVoxelGameState : public AGameStateBase
 
 	InventoryDatabase InventoryDatabase;
 
+	UPROPERTY()
+	TObjectPtr<UInventoryVisualizerWidget> InventoryVisualizer;
+
+	TSharedPtr<IInventoryInterface> PlayerInventory;
+
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UItemInfoDatabase> ItemInfoDatabase;
+
 	
-	::InventoryDatabase& GetInventoryDatabase()
-	{
-		return InventoryDatabase;
-	}
+	::InventoryDatabase& GetInventoryDatabase() { return InventoryDatabase; }
+
+	TObjectPtr<UInventoryVisualizerWidget> GetInventoryVisualizer() const { return InventoryVisualizer; }
+	
+	void SetInventoryVisualizer(TObjectPtr<UInventoryVisualizerWidget> NewInventoryVisualizer) { InventoryVisualizer = NewInventoryVisualizer; }
+
+	TSharedPtr<IInventoryInterface> GetPlayerInventory() const { return PlayerInventory; }
+	
+	void SetPlayerInventory(TSharedPtr<IInventoryInterface> NewPlayerInventory) { PlayerInventory = NewPlayerInventory; }
+
+	TObjectPtr<UItemInfoDatabase> GetItemInfoDatabase() const { return ItemInfoDatabase; }
 };

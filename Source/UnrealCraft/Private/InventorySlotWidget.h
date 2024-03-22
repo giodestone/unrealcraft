@@ -24,8 +24,13 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UWidget> ItemParent;
+	TObjectPtr<UPanelWidget> ItemParent;
 
+public:
+	TObjectPtr<UPanelWidget>& GetItemParent();
+	TObjectPtr<UButton>& GetButtonWidget();
+
+private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UButton> ButtonWidget;
 };

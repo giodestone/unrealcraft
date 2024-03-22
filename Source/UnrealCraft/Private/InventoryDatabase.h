@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UnrealCraft/Public/InventoryInterface.h"
+#include "InventoryInterface.h"
 
 /**
  * Contains information about the various inventories present in the game world at runtime.
@@ -35,7 +35,7 @@ public:
 	bool GetWorldInventory(const FIntVector& Coord, TSharedPtr<IInventoryInterface>& OutInventory) const;
 
 	/**
-	 * Get an inventory outside of the block world.
+	 * Get an inventory outside the block world.
 	 * @return True if it exists, false if it doesn't.
 	 * @remark For ID use "Player" if getting the player inventory.
 	 */

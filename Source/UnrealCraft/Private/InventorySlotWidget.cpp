@@ -13,6 +13,9 @@ void UInventorySlotWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
+	if (ButtonWidget == nullptr)
+		ButtonWidget = Cast<UButton>(this->GetWidgetFromName("SlotButton"));
+	
 	if (ButtonWidget != nullptr)
 	{
 		ButtonWidget->OnClicked.AddDynamic(this, &UInventorySlotWidget::OnButtonClicked);
@@ -21,4 +24,14 @@ void UInventorySlotWidget::NativeOnInitialized()
 	{
 		GLog->Log(ELogVerbosity::Error, TEXT("[UInventorySlotWidget::NativeOnInitialized]: Button reference not set."));
 	}
+}
+
+TObjectPtr<UPanelWidget>& UInventorySlotWidget::GetItemParent()
+{
+	return ItemParent;
+}
+
+TObjectPtr<UButton>& UInventorySlotWidget::GetButtonWidget()
+{
+	return ButtonWidget;
 }

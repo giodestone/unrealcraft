@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UnrealCraft/Public/PlayerInventory.h"
+#include "PlayerInventory.h"
 
 PlayerInventory::PlayerInventory()
 {

@@ -8,7 +8,7 @@
 /**
  * For representing a players' inventory.
  */
-class UNREALCRAFT_API PlayerInventory : public Inventory
+class PlayerInventory : public Inventory
 {
 public:
 	PlayerInventory();

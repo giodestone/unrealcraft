@@ -7,7 +7,8 @@
 #include "VoxelGameState.h"
 #include "VoxelPawn.h"
 #include "VoxelPlayerController.h"
-#include "UnrealCraft/Public/PlayerInventory.h"
+#include "PlayerInventory.h"
+#include "UnrealCraftItem.h"
 
 AVoxelGameMode::AVoxelGameMode()
 {
@@ -30,11 +31,21 @@ void AVoxelGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	auto VoxelGameState = GetGameState<AVoxelGameState>();
-
+	auto VoxelGameState = Cast<AVoxelGameState>(GameState);
+	
 	// TODO: If this game ever goes multiplayer - this needs to be fixed.
-	if (VoxelGameState != nullptr)
-		VoxelGameState->GetInventoryDatabase().AddEntityInventory("Player", MakeShared<PlayerInventory>());
+	
+	if (VoxelGameState == nullptr)
+		return;
+
+	auto InitialItem = NewObject<UUnrealCraftItem>();
+	InitialItem->Initialize("stone");
+	
+	auto CreatedPlayerInventory = MakeShared<PlayerInventory>();
+	CreatedPlayerInventory->InsertAnywhere(InitialItem);
+	VoxelGameState->GetInventoryDatabase().AddEntityInventory("Player", CreatedPlayerInventory);
+
+	Cast<AVoxelGameState>(GameState)->SetPlayerInventory(CreatedPlayerInventory);
 
 	// GLog->Logf(ELogVerbosity::Log, TEXT("[]: New Player Joined, name: %s"), NewPlayer->GetName().GetCharArray());
 }

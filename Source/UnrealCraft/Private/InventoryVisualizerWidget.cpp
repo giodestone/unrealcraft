@@ -4,45 +4,66 @@
 #include "InventoryVisualizerWidget.h"
 
 #include "InventoryInterface.h"
+#include "InventoryItemWidget.h"
+#include "InventorySlotWidget.h"
+#include "VoxelGameState.h"
 #include "Blueprint/WidgetTree.h"
 
-void UInventoryVisualizerWidget::ShowPlayerInventory(TSharedPtr<IInventoryInterface> PlayerInventory)
+void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<IInventoryInterface> PlayerInventory, bool& OutIsMenuDisplayed)
 {
-	for (int32 x = 0; x < PlayerInventory->GetSize().X; x++)
+	switch (State)
 	{
-		for (int32 y = 0; y < PlayerInventory->GetSize().Y; y++)
-		{
-			CreateWidget<UInventorySlotWidget>(PlayerInventorySlotParent);
-		}
+	case Hidden:
+		InitPlayerInventoryWidget(PlayerInventory);
+		State = ShowingPlayer;
+		OutIsMenuDisplayed = true;
+		break;
+	case ShowingBoth:
+		HideSecondaryInventory();
+	case ShowingPlayer:
+		State = Hidden;
+		HidePlayerInventory();
+		OutIsMenuDisplayed = false;
+		break;
+		
 	}
-	// spawn item slots
-	// place items in slots
-	// show the player inventory
+	// TArray<UWidget*> Children;
+	// PlayerInventoryMenuWidget->WidgetTree->GetAllWidgets(Children);
+}
 
-	this->SetVisibility(ESlateVisibility::Visible);
+void UInventoryVisualizerWidget::ShowBothInventories(IInventoryInterface* PlayerInventory,
+	IInventoryInterface* OtherInventory)
+{
+}
+
+void UInventoryVisualizerWidget::Hide()
+{
 }
 
 void UInventoryVisualizerWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
-	TArray<UWidget*> Children;
-	WidgetTree->GetAllWidgets(Children);
 	
-	if (auto PlayerWidget = GetWidgetFromName(PlayerInventorySlotWidgetName))
+	if (auto PlayerWidget = GetWidgetFromName(PlayerInventoryMenuWidgetName))
 	{
-		PlayerInventorySlotWidget = Cast<UUserWidget>(PlayerWidget);
+		PlayerInventoryMenuWidget = Cast<UUserWidget>(PlayerWidget);
 	}
 	else
 	{
 		GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Unable to get player widget."));
 	}
 	
-	if (PlayerInventorySlotWidget != nullptr)
+	if (PlayerInventoryMenuWidget != nullptr)
 	{
-		if (auto SlotParent = PlayerInventorySlotWidget->GetWidgetFromName(FName("InventorySlotParent")))
+		if (auto SlotParent = PlayerInventoryMenuWidget->GetWidgetFromName(FName("InventorySlotParent")))
 		{
-			this->PlayerInventorySlotParent = SlotParent;
+			if (auto SlotParentPanel = Cast<UPanelWidget>(SlotParent))
+			{
+				this->PlayerInventoryMenuWidgetSlotParent = SlotParentPanel;
+			}
+			else
+				GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Unable to cast slot parent widget to a panel widget."));
+
 		}
 		else
 		{
@@ -54,10 +75,46 @@ void UInventoryVisualizerWidget::NativeOnInitialized()
 		GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Player inventory widget not set."));
 	}
 
+	Cast<AVoxelGameState>(GetWorld()->GetGameState())->SetInventoryVisualizer(this);
+	
 	this->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInventoryVisualizerWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+}
+
+void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory)
+{
+	for (int32 x = 0; x < PlayerInventory->GetSize().X; x++)
+	{
+		for (int32 y = 0; y < PlayerInventory->GetSize().Y; y++)
+		{
+			auto NewSlotWidget = Cast<UInventorySlotWidget>(CreateWidget(GetWorld(), InventorySlotBlueprint));
+			PlayerInventoryMenuWidgetSlotParent->AddChild(NewSlotWidget);
+
+			UUnrealCraftItem* Item;
+			if (PlayerInventory->HasItem(FIntVector2(x, y), Item))
+			{
+				auto NewItemWidget = Cast<UInventoryItemWidget>(CreateWidget(GetWorld(), InventoryItemBlueprint));
+				NewSlotWidget->GetItemParent()->AddChild(NewItemWidget);
+
+				NewItemWidget->SetRepresentedItem(Item);
+			}
+		}
+	}
+
+	this->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UInventoryVisualizerWidget::HideSecondaryInventory()
+{
+	this->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UInventoryVisualizerWidget::HidePlayerInventory()
+{
+	PlayerInventoryMenuWidgetSlotParent->ClearChildren();
+	this->SetVisibility(ESlateVisibility::Hidden);
 }

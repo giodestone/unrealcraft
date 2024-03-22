@@ -8,6 +8,7 @@
 
 /**
  * An item present in some inventory or dropped item.
+ * @remarks Only one object should hold this item when not in transit. Otherwise, the same item will be duplicated across multiple inventories or items.
  */
 UCLASS()
 class UUnrealCraftItem : public UObject
@@ -17,6 +18,11 @@ class UUnrealCraftItem : public UObject
 	UPROPERTY(VisibleAnywhere)
 	FString AssociatedItemID;
 
+public:
+	FString GetAssociatedItemID() const;
+	int8 GetCurrentStack() const;
+
+private:
 	UPROPERTY(VisibleAnywhere)
 	int8 CurrentStack;
 public:

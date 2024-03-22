@@ -8,7 +8,7 @@
 
 class UUnrealCraftItem;
 /**
- * 
+ * For representing an {@link UUnrealCraftItem} in the GUI.
  */
 UCLASS()
 class UInventoryItemWidget : public UUserWidget

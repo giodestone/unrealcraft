@@ -3,3 +3,7 @@
 
 #include "ItemDatabase.h"
 
+FUnrealCraftItemInfo UItemInfoDatabase::GetInfo(const FString& ID) const
+{
+	return Items[ID];
+}

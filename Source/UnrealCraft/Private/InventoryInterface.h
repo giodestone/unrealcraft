@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "UnrealCraft/Private/UnrealCraftItem.h"
 #include "InventoryInterface.generated.h"
+
+class UUnrealCraftItem;
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -17,18 +18,15 @@ class UInventoryInterface : public UInterface
 /**
  * For interacting with inventories.
  */
-class UNREALCRAFT_API IInventoryInterface
+class IInventoryInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
-public:
+protected:
 	UFUNCTION()
-	virtual bool Open() = 0;
-
-	UFUNCTION()
-	virtual bool Close() = 0;
+	virtual void SetSize(FIntVector2 Size) = 0;
 	
+public:
 	UFUNCTION()
 	virtual bool InsertAnywhere(UUnrealCraftItem* Item) = 0;
 	
@@ -37,9 +35,9 @@ public:
 
 	UFUNCTION()
 	virtual bool RemoveFrom(const FIntVector2& Coord, UUnrealCraftItem*& OutItem) = 0;
-	
+
 	UFUNCTION()
-	virtual bool IsFull() const = 0;
+	virtual bool HasItem(const FIntVector2& Coord, UUnrealCraftItem*& OutItem) const = 0;
 
 	UFUNCTION()
 	virtual const FIntVector2 GetSize() const = 0;	

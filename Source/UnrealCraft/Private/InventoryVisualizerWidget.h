@@ -17,7 +17,7 @@ enum EInventoryVisualiserState
 };
 
 /**
- * For visualising a world inventory.
+ * For visualising the players or world inventory on the screen.
  */
 UCLASS()
 class UInventoryVisualizerWidget : public UUserWidget
@@ -33,19 +33,18 @@ class UInventoryVisualizerWidget : public UUserWidget
 	TSubclassOf<UInventoryItemWidget> InventoryItemBlueprint;
 
 	UPROPERTY(EditAnywhere, Category="References")
-	FName PlayerInventorySlotWidgetName = "PlayerInventoryGrid";
-	
-	UPROPERTY()
-	TObjectPtr<UUserWidget> PlayerInventorySlotWidget;
+	FName PlayerInventoryMenuWidgetName = "PlayerInventoryGrid";
 
 	UPROPERTY(EditAnywhere, Category="References")
 	TObjectPtr<UUserWidget> OtherInventorySlotWidget;
 
-	
-	TObjectPtr<UWidget> PlayerInventorySlotParent;
+	UPROPERTY()
+	TObjectPtr<UUserWidget> PlayerInventoryMenuWidget;
+	UPROPERTY()
+	TObjectPtr<UPanelWidget> PlayerInventoryMenuWidgetSlotParent;
 
 public:
-	void ShowPlayerInventory(TSharedPtr<IInventoryInterface> PlayerInventory);
+	void TogglePlayerInventory(TSharedPtr<IInventoryInterface> PlayerInventory, bool& OutIsMenuDisplayed);
 	void ShowBothInventories(IInventoryInterface* PlayerInventory, IInventoryInterface* OtherInventory);
 	void Hide();
 
@@ -55,4 +54,9 @@ protected:
 	 */
 	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
+
+private:
+	void InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory);
+	void HideSecondaryInventory();
+	void HidePlayerInventory();
 };
