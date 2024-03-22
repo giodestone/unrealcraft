@@ -7,6 +7,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "VoxelGameState.generated.h"
 
+class UItemInfoDatabase;
+
 /**
  * 
  */
@@ -18,6 +20,9 @@ class AVoxelGameState : public AGameStateBase
 	InventoryDatabase InventoryDatabase;
 
 public:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UItemInfoDatabase> ItemInfoDatabase;
+	
 	::InventoryDatabase& GetInventoryDatabase()
 	{
 		return InventoryDatabase;

@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Enums.h"
+#include "PlayerHUD.h"
 #include "UnrealCraftCharacter.generated.h"
 
+class APlayerHUD;
 class ABaseChunk;
 class UUserWidget;
 class UCameraComponent;
@@ -24,7 +26,7 @@ public:
 	float Reach = 6.f * 100.f;
 	
 	AUnrealCraftCharacter();
-	
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -57,6 +59,10 @@ public:
 	UFUNCTION()
 	void Interact();
 
+	UFUNCTION()
+	void PlayerInventory();
+
 private:
 	void PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block);
+
 };

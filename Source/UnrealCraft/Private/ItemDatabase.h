@@ -15,6 +15,6 @@ class UItemInfoDatabase : public UDataAsset
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	TArray<UUnrealCraftItemInfo*> Items;
+	UPROPERTY(EditAnywhere)
+	TMap<FString, FUnrealCraftItemInfo> Items;
 };

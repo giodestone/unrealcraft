@@ -4,11 +4,14 @@
 #include "UnrealCraftCharacter.h"
 
 #include "ChunkWorld.h"
+#include "PlayerHUD.h"
 #include "VoxelGameState.h"
 #include "VoxelUtils.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/PlayerState.h"
+#include "Kismet/GameplayStatics.h"
 #include "UnrealCraft/Public/Inventory.h"
 
 AUnrealCraftCharacter::AUnrealCraftCharacter()
@@ -25,10 +28,6 @@ AUnrealCraftCharacter::AUnrealCraftCharacter()
 void AUnrealCraftCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	check(GEngine != nullptr);
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Hello World, this is UnrealCraftCharacter!"));
 }
 
 void AUnrealCraftCharacter::Tick(float DeltaTime)
@@ -53,6 +52,8 @@ void AUnrealCraftCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Hit", IE_Pressed, this, &AUnrealCraftCharacter::StartHit);
 	PlayerInputComponent->BindAction("Hit", IE_Released, this, &AUnrealCraftCharacter::StopHit);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AUnrealCraftCharacter::Interact);
+
+	PlayerInputComponent->BindAction("PlayerInventory", IE_Pressed, this, &AUnrealCraftCharacter::PlayerInventory);
 }
 
 void AUnrealCraftCharacter::MoveForward(float Value)
@@ -153,6 +154,40 @@ void AUnrealCraftCharacter::Interact()
 		break;
 		
 	}
+}
+
+void AUnrealCraftCharacter::PlayerInventory()
+{
+	// TODO: if this ever goes multiplayer, this needs to be fixed probably.
+
+	auto GameState = Cast<AVoxelGameState>(GetWorld()->GetGameState());
+	
+	if (GameState == nullptr)
+	{
+		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get gamestate."));
+		return;
+	}
+		
+	// get player inventory (jeez)
+	TSharedPtr<IInventoryInterface> PlayerInventory;
+	GameState->GetInventoryDatabase().GetEntityInventory(
+			"Player", PlayerInventory);
+	
+	if (PlayerInventory == nullptr)
+	{
+		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get player inventory."));
+		return;
+	}
+	
+	auto PlayerHUD = Cast<APlayerHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	
+	if (PlayerHUD == nullptr)
+	{
+		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get hud."));
+		return;
+	}
+	
+	PlayerHUD->GetInventoryScreenWidget()->ShowPlayerInventory(PlayerInventory);
 }
 
 void AUnrealCraftCharacter::PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block)

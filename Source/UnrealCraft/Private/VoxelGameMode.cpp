@@ -3,6 +3,7 @@
 
 #include "VoxelGameMode.h"
 
+#include "PlayerHUD.h"
 #include "VoxelGameState.h"
 #include "VoxelPawn.h"
 #include "VoxelPlayerController.h"
@@ -13,6 +14,7 @@ AVoxelGameMode::AVoxelGameMode()
 	this->PlayerControllerClass = AVoxelPlayerController::StaticClass();
 	this->DefaultPawnClass = AVoxelPawn::StaticClass();
 	this->GameStateClass = AVoxelGameState::StaticClass();
+	this->HUDClass = APlayerHUD::StaticClass();
 }
 
 void AVoxelGameMode::StartPlay()
@@ -32,5 +34,7 @@ void AVoxelGameMode::PostLogin(APlayerController* NewPlayer)
 
 	// TODO: If this game ever goes multiplayer - this needs to be fixed.
 	if (VoxelGameState != nullptr)
-		VoxelGameState->GetInventoryDatabase().AddEntityInventory(NewPlayer->GetName(), MakeShared<PlayerInventory>());
+		VoxelGameState->GetInventoryDatabase().AddEntityInventory("Player", MakeShared<PlayerInventory>());
+
+	// GLog->Logf(ELogVerbosity::Log, TEXT("[]: New Player Joined, name: %s"), NewPlayer->GetName().GetCharArray());
 }

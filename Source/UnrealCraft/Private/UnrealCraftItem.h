@@ -15,7 +15,7 @@ class UUnrealCraftItem : public UObject
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere)
-	UUnrealCraftItemInfo* RepresentedItemInfo;
+	FString AssociatedItemID;
 
 	UPROPERTY(VisibleAnywhere)
 	int8 CurrentStack;
@@ -23,5 +23,5 @@ public:
 	UUnrealCraftItem();
 	~UUnrealCraftItem();
 
-	void Initialize(UUnrealCraftItemInfo* ItemInfo, const int8 StackSize = 1);
+	void Initialize(const FString& InAssociatedItemID, const int8 CurrentStackSize = 1);
 };

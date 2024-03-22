@@ -37,6 +37,7 @@ public:
 	/**
 	 * Get an inventory outside of the block world.
 	 * @return True if it exists, false if it doesn't.
+	 * @remark For ID use "Player" if getting the player inventory.
 	 */
 	bool GetEntityInventory(const FString& ID, TSharedPtr<IInventoryInterface>& OutInventory) const;
 

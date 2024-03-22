@@ -11,8 +11,8 @@ UUnrealCraftItem::~UUnrealCraftItem()
 {
 }
 
-void UUnrealCraftItem::Initialize(UUnrealCraftItemInfo* ItemInfo, const int8 StackSize)
+void UUnrealCraftItem::Initialize(const FString& InAssociatedItemID, const int8 CurrentStackSize)
 {
-	this->RepresentedItemInfo = ItemInfo;
-	this->CurrentStack = StackSize;
+	this->AssociatedItemID = InAssociatedItemID;
+	this->CurrentStack = CurrentStackSize;
 }
