@@ -31,7 +31,6 @@ class UInventoryItemWidget : public UUserWidget
 	TObjectPtr<UUnrealCraftItem> RepresentedItem;
 
 public:
-
 	
 	void SetRepresentedItem(TObjectPtr<UUnrealCraftItem> NewRepresentedItem);
 
