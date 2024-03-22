@@ -15,10 +15,16 @@ class UInventoryItemWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
+	FName IconImageWidgetName;
+
+	UPROPERTY(EditDefaultsOnly)
+	FName StackTextWidgetName;
+	
+	UPROPERTY()
 	TObjectPtr<class UImage> IconImage;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	TObjectPtr<class UTextBlock> StackText;
 	
 	UPROPERTY()
@@ -27,5 +33,7 @@ class UInventoryItemWidget : public UUserWidget
 public:
 
 	void SetRepresentedItem(TObjectPtr<UUnrealCraftItem> NewRepresentedItem);
-	
+
+protected:
+	virtual void NativeOnInitialized() override;
 };
