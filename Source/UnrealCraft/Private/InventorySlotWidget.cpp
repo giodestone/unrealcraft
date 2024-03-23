@@ -3,35 +3,59 @@
 
 #include "InventorySlotWidget.h"
 
+#include "InventoryItemWidget.h"
+#include "InventoryVisualizerWidget.h"
 #include "Components/Button.h"
-
-void UInventorySlotWidget::OnButtonClicked()
-{
-}
 
 void UInventorySlotWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
 	if (ButtonWidget == nullptr)
-		ButtonWidget = Cast<UButton>(this->GetWidgetFromName("SlotButton"));
+		ButtonWidget = Cast<UButton>(this->GetWidgetFromName(ButtonWidgetName));
 	
-	if (ButtonWidget != nullptr)
-	{
-		ButtonWidget->OnClicked.AddDynamic(this, &UInventorySlotWidget::OnButtonClicked);
-	}
-	else
-	{
+	if (ButtonWidget == nullptr)
 		GLog->Log(ELogVerbosity::Error, TEXT("[UInventorySlotWidget::NativeOnInitialized]: Button reference not set."));
-	}
+	else
+		ButtonWidget->OnClicked.AddDynamic(this, &UInventorySlotWidget::OnButtonClicked);
 }
 
-TObjectPtr<UPanelWidget>& UInventorySlotWidget::GetItemParent()
+void UInventorySlotWidget::OnButtonClicked()
 {
-	return ItemParent;
+	OwningInventoryVisualizer->OnSlotButtonClicked(this);
 }
 
-TObjectPtr<UButton>& UInventorySlotWidget::GetButtonWidget()
+FIntVector2 UInventorySlotWidget::GetRepresentedInventoryCoord() const
 {
-	return ButtonWidget;
+	return RepresentedInventoryCoord;
+}
+
+void UInventorySlotWidget::InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer)
+{
+	this->RepresentedInventoryCoord = InRepresentedInventoryCoord;
+	OwningInventoryVisualizer = InOwningInventoryVisualizer;
+}
+
+void UInventorySlotWidget::AddItemWidget(UInventoryItemWidget* WidgetToAdd)
+{
+	ItemParent->AddChild(WidgetToAdd); // this order is really important!
+	this->CurrentItemWidget = WidgetToAdd;
+}
+
+TObjectPtr<UInventoryItemWidget> UInventorySlotWidget::RemoveItemWidget()
+{
+	CurrentItemWidget->RemoveFromParent();
+	TObjectPtr<UInventoryItemWidget> RemovedWidget = CurrentItemWidget; // so we can keep a reference to the memory address without breaking anything.
+	CurrentItemWidget = nullptr;
+	return RemovedWidget;
+}
+
+UInventoryItemWidget* UInventorySlotWidget::GetCurrentWidget() const
+{
+	return CurrentItemWidget;
+}
+
+bool UInventorySlotWidget::IsHoldingWidget() const
+{
+	return GetCurrentWidget() != nullptr;
 }

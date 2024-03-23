@@ -6,31 +6,63 @@
 #include "Blueprint/UserWidget.h"
 #include "InventorySlotWidget.generated.h"
 
+class UInventoryItemWidget;
+class UInventoryVisualizerWidget;
 class UButton;
 /**
- * 
+ * Represents an inventory slot, which {@link UInventoryItemWidget} can dock into.
  */
 UCLASS()
 class UInventorySlotWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-public:
-	UFUNCTION()
-	void OnButtonClicked();
+private:
+	UPROPERTY(EditDefaultsOnly)
+	FName ButtonWidgetName = "SlotButton";
 	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UPanelWidget> ItemParent;
+
+	UPROPERTY()
+	TObjectPtr<UButton> ButtonWidget;
+	
+	FIntVector2 RepresentedInventoryCoord;
+
+public:
+	FIntVector2 GetRepresentedInventoryCoord() const;
+
+private:
+	UPROPERTY()
+	TObjectPtr<UInventoryVisualizerWidget> OwningInventoryVisualizer;
+
+	UPROPERTY()
+	TObjectPtr<UInventoryItemWidget> CurrentItemWidget;
+	
+public:
+	void InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer);
+
+	/**
+	 * Add a widget to be held by this widget.
+	 */
+	void AddItemWidget(UInventoryItemWidget* WidgetToAdd);
+
+	/**
+	 * Remove the currently held item widget.
+	 */
+	TObjectPtr<UInventoryItemWidget> RemoveItemWidget();
+
+	/**
+	 * Get the currently held widget (if any).
+	 */
+	UInventoryItemWidget* GetCurrentWidget() const;
+
+	bool IsHoldingWidget() const;
+
 protected:
 	virtual void NativeOnInitialized() override;
 
 private:
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UPanelWidget> ItemParent;
-
-public:
-	TObjectPtr<UPanelWidget>& GetItemParent();
-	TObjectPtr<UButton>& GetButtonWidget();
-
-private:
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UButton> ButtonWidget;
+	UFUNCTION()
+	void OnButtonClicked();
 };
