@@ -17,13 +17,14 @@ void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<IInventoryInte
 	case Hidden:
 		InitPlayerInventoryWidget(PlayerInventory);
 
+		
 		this->CurrentPlayerInventory = PlayerInventory;
 		OutIsMenuDisplayed = true;
 
 		State = ShowingPlayer;
 		break;
 		
-	case ShowingBoth: // TODO: Identical to ToggleBothInventories
+	case ShowingBoth: // TODO: Identical to ToggleBothInventories, Hide
 		HideSecondaryInventory();
 		CurrentOtherInventory = nullptr;
 	case ShowingPlayer:
@@ -55,7 +56,7 @@ void UInventoryVisualizerWidget::ToggleBothInventories(TSharedPtr<IInventoryInte
 		State = ShowingBoth;
 		break;
 
-	case ShowingBoth: // TODO: Identical to TogglePlayerInventory
+	case ShowingBoth: // TODO: Identical to TogglePlayerInventory, Hide
 		HideSecondaryInventory();
 		CurrentOtherInventory = nullptr;
 	case ShowingPlayer:
@@ -69,6 +70,20 @@ void UInventoryVisualizerWidget::ToggleBothInventories(TSharedPtr<IInventoryInte
 
 void UInventoryVisualizerWidget::Hide()
 {
+	switch (State)
+	{
+	case Hidden:
+		break;
+
+	case ShowingBoth: // TODO: Identical to TogglePlayerInventory, ToggleBothInventories
+		HideSecondaryInventory();
+		CurrentOtherInventory = nullptr;
+	case ShowingPlayer:
+		HidePlayerInventory();
+		this->CurrentPlayerInventory = nullptr;
+		State = Hidden;
+		break;
+	}
 }
 
 void UInventoryVisualizerWidget::OnSlotButtonClicked(UInventorySlotWidget* Widget)
@@ -77,6 +92,7 @@ void UInventoryVisualizerWidget::OnSlotButtonClicked(UInventorySlotWidget* Widge
 	{
 		CurrentHeldItem = Widget->RemoveItemWidget();
 		HeldItemParentPanel->AddChild(CurrentHeldItem);
+		CurrentHeldItem->SetVisibility(ESlateVisibility::HitTestInvisible);
 
 		UUnrealCraftItem* RemovedItem; // unused because it is already part of CurrentHeldItem.
 		CurrentPlayerInventory->RemoveFrom(Widget->GetRepresentedInventoryCoord(), RemovedItem);
@@ -85,51 +101,67 @@ void UInventoryVisualizerWidget::OnSlotButtonClicked(UInventorySlotWidget* Widge
 	{
 		CurrentHeldItem->SetRenderTranslation(FVector2D::Zero());
 		CurrentHeldItem->RemoveFromParent();
+		CurrentHeldItem->SetVisibility(ESlateVisibility::Visible);
 		Widget->AddItemWidget(CurrentHeldItem);
 		CurrentHeldItem = nullptr;
 	}
 }
 
+EInventoryVisualiserState UInventoryVisualizerWidget::GetState() const
+{
+	return State;
+}
+
+void UInventoryVisualizerWidget::SetupComponentsFromName()
+{
+	if (auto PlayerWidget = GetWidgetFromName(PlayerInventoryMenuWidgetName))
+		PlayerInventoryMenuWidget = dynamic_cast<UUserWidget*>(PlayerWidget);
+	else
+		GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Unable to get player grid widget from name. Check blueprint."));
+
+	if (auto OtherWidget = GetWidgetFromName(OtherInventoryMenuWidgetName))
+		OtherInventoryMenuWidget = dynamic_cast<UUserWidget*>(OtherWidget);
+	else
+		GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Unable to get other grid widget from name. Check blueprint."));
+	
+	if (auto HeldItemParent = dynamic_cast<UPanelWidget*>(GetWidgetFromName(HeldItemParentWidgetName)))
+		HeldItemParentPanel = HeldItemParent;
+	else
+		GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Unable to find the parent for held item. Check blueprint."));
+}
+
+UPanelWidget* UInventoryVisualizerWidget::GetPanelSubWidget(UUserWidget* ParentWidget, const FName& PanelWidgetName)
+{
+	if (ParentWidget == nullptr)
+	{
+		GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::GetPanelSubWidget]: Unable to get the panel subwidget as the parent widget is null. Check blueprint as this is related to another error."));
+		return nullptr;
+	}
+
+	auto PanelSubWidget = ParentWidget->GetWidgetFromName(PanelWidgetName);
+
+	if (PanelSubWidget == nullptr)
+	{
+		UE_LOG(LogTemp, Error,
+			           TEXT("[UInventoryVisualizerWidget::GetPanelSubWidget]: Unable to get the panel subwidget named '%s'. Check blueprint for specified name."),
+		           PanelWidgetName);
+		return nullptr;
+	}
+	
+	return dynamic_cast<UPanelWidget*>(PanelSubWidget);
+}
+
+
 void UInventoryVisualizerWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	
-	if (auto PlayerWidget = GetWidgetFromName(PlayerInventoryMenuWidgetName))
-	{
-		PlayerInventoryMenuWidget = Cast<UUserWidget>(PlayerWidget);
-	}
-	else
-	{
-		GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Unable to get player widget."));
-	}
-	
-	if (PlayerInventoryMenuWidget != nullptr)
-	{
-		if (auto SlotParent = PlayerInventoryMenuWidget->GetWidgetFromName(FName("InventorySlotParent")))
-		{
-			if (auto SlotParentPanel = Cast<UPanelWidget>(SlotParent))
-			{
-				this->PlayerInventoryMenuWidgetSlotParent = SlotParentPanel;
-			}
-			else
-				GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Unable to cast slot parent widget to a panel widget."));
+	SetupComponentsFromName();
 
-		}
-		else
-		{
-			GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Unable to get inventory slot parent for player inventory."));
-		}
-	}
-	else
-	{
-		GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Player inventory widget not set. Check blueprint."));
-	}
-
-	HeldItemParentPanel = Cast<UPanelWidget>(GetWidgetFromName(HeldItemParentWidgetName));
-	if (HeldItemParentPanel == nullptr)
-		GLog->Log(ELogVerbosity::Error, TEXT("[UInventoryVisualizerWidget::NativeOnInitialized]: Unable to find the parent for held item. Check blueprint."));
+	PlayerInventoryMenuWidgetSlotParent = GetPanelSubWidget(PlayerInventoryMenuWidget, InventoryMenuSlotParentName);
+	OtherInventoryMenuWidgetSlotParent = GetPanelSubWidget(OtherInventoryMenuWidget, InventoryMenuSlotParentName);
 	
-	Cast<AVoxelGameState>(GetWorld()->GetGameState())->SetInventoryVisualizer(this);
+	dynamic_cast<AVoxelGameState*>(GetWorld()->GetGameState())->SetInventoryVisualizer(this);
 	
 	this->SetVisibility(ESlateVisibility::Hidden);
 }
@@ -149,18 +181,26 @@ void UInventoryVisualizerWidget::NativeTick(const FGeometry& MyGeometry, float I
 
 void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory)
 {
+	CurrentPlayerInventory = PlayerInventory;
 	SpawnInventoryGrid(PlayerInventory, PlayerInventoryMenuWidget, PlayerInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint);
 
+	PlayerInventoryMenuWidget->SetVisibility(ESlateVisibility::Visible);
 	this->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UInventoryVisualizerWidget::InitOtherInventoryWidget(TSharedPtr<IInventoryInterface> OtherInventory)
 {
+	CurrentOtherInventory = OtherInventory;
+	SpawnInventoryGrid(OtherInventory, OtherInventoryMenuWidget, OtherInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint);
+
+	OtherInventoryMenuWidget->SetVisibility(ESlateVisibility::Visible);
+	this->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UInventoryVisualizerWidget::HideSecondaryInventory()
 {
-	this->SetVisibility(ESlateVisibility::Hidden);
+	OtherInventoryMenuWidgetSlotParent->ClearChildren();
+	OtherInventoryMenuWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInventoryVisualizerWidget::HidePlayerInventory()

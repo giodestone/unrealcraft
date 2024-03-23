@@ -15,7 +15,7 @@ void UInventorySlotWidget::NativeOnInitialized()
 		ButtonWidget = Cast<UButton>(this->GetWidgetFromName(ButtonWidgetName));
 	
 	if (ButtonWidget == nullptr)
-		GLog->Log(ELogVerbosity::Error, TEXT("[UInventorySlotWidget::NativeOnInitialized]: Button reference not set."));
+		GLog->Log(ELogVerbosity::Error, TEXT("[UInventorySlotWidget::NativeOnInitialized]: Button reference not set. Check the blueprint."));
 	else
 		ButtonWidget->OnClicked.AddDynamic(this, &UInventorySlotWidget::OnButtonClicked);
 }

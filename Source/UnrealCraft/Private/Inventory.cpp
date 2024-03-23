@@ -66,7 +66,12 @@ bool Inventory::InsertInto(const FIntVector2& Coord, UUnrealCraftItem* Item)
 
 bool Inventory::RemoveFrom(const FIntVector2& Coord, UUnrealCraftItem*& OutItem)
 {
-	return false;
+	// TODO: Consider stacking.
+	
+	TObjectPtr<UUnrealCraftItem> RemovedItem;
+	auto ReturnValue = Items.RemoveAndCopyValue(Coord, RemovedItem);
+	OutItem = RemovedItem;
+	return ReturnValue;
 }
 
 const FIntVector2 Inventory::GetSize() const

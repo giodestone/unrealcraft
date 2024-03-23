@@ -10,7 +10,7 @@ class UInventoryItemWidget;
 class UInventorySlotWidget;
 class IInventoryInterface;
 
-UENUM()
+UENUM(BlueprintType)
 enum EInventoryVisualiserState
 {
 	Hidden, ShowingPlayer, ShowingBoth
@@ -25,28 +25,39 @@ class UInventoryVisualizerWidget : public UUserWidget
 	GENERATED_BODY()
 
 private:
-	EInventoryVisualiserState State = Hidden;
-
-	UPROPERTY(EditAnywhere, Category="Blueprints")
+	UPROPERTY(EditDefaultsOnly, Category="Blueprints")
 	TSubclassOf<UInventorySlotWidget> InventorySlotBlueprint;
 
-	UPROPERTY(EditAnywhere, Category="Blueprints")
+	UPROPERTY(EditDefaultsOnly, Category="Blueprints")
 	TSubclassOf<UInventoryItemWidget> InventoryItemBlueprint;
 
-	UPROPERTY(EditAnywhere, Category="References")
+	// Yes getting them by fname seems counterinutive, but the references keep resetting for some reason.
+	UPROPERTY(EditDefaultsOnly, Category="References")
 	FName PlayerInventoryMenuWidgetName = "PlayerInventoryGrid";
 
 	UPROPERTY(EditDefaultsOnly, Category="References")
+	FName OtherInventoryMenuWidgetName = "OtherInventoryGrid";
+
+	UPROPERTY(EditDefaultsOnly, Category="References")
 	FName HeldItemParentWidgetName = "HeldItemParent";
+
+	UPROPERTY(EditDefaultsOnly, Category="References")
+	FName InventoryMenuSlotParentName = "InventorySlotParent";
 	
-	UPROPERTY(EditAnywhere, Category="References")
-	TObjectPtr<UUserWidget> OtherInventorySlotWidget;
 
 	UPROPERTY()
 	TObjectPtr<UUserWidget> PlayerInventoryMenuWidget;
 
 	UPROPERTY()
+	TObjectPtr<UUserWidget> OtherInventoryMenuWidget;
+
+	// TODO: Consider moving this logic to its own InventoryGridWidget class.
+	UPROPERTY()
 	TObjectPtr<UPanelWidget> PlayerInventoryMenuWidgetSlotParent;
+	
+	UPROPERTY()
+	TObjectPtr<UPanelWidget> OtherInventoryMenuWidgetSlotParent;
+	
 
 	UPROPERTY()
 	TObjectPtr<UPanelWidget> HeldItemParentPanel;
@@ -54,22 +65,28 @@ private:
 	UPROPERTY()
 	TObjectPtr<UInventoryItemWidget> CurrentHeldItem;
 
+	
 	TSharedPtr<IInventoryInterface> CurrentPlayerInventory;
 	TSharedPtr<IInventoryInterface> CurrentOtherInventory;
-
-	// if slot clicked and item is in it
-	// give the item to the mouse
-	// if another click on a slot is done, and we have an item.
-	// place it into the slot.
+	
+	EInventoryVisualiserState State = Hidden;
 
 public:
 	void TogglePlayerInventory(TSharedPtr<IInventoryInterface> PlayerInventory, bool& OutIsMenuDisplayed);
 	void ToggleBothInventories(TSharedPtr<IInventoryInterface> PlayerInventory, TSharedPtr<IInventoryInterface> OtherInventory, bool& OutIsMenuDisplayed);
+
+	/**
+	 * Hides all visible UI.
+	 */
+	UFUNCTION(BlueprintCallable)
 	void Hide();
 
 	UFUNCTION()
 	void OnSlotButtonClicked(UInventorySlotWidget* Widget);
-	
+
+	UFUNCTION(BlueprintCallable)
+	EInventoryVisualiserState GetState() const;
+
 protected:
 	/**
 	 * Callled once when the game is started.
@@ -79,6 +96,18 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
+	/**
+	 * Get the components in this object from name.
+	 */
+	void SetupComponentsFromName();
+
+	/**
+	 * Get a panel sub widget pointer from the ParentWidget by name.
+	 * @return nullptr if not found. Logs an error too.
+	 */
+	UPanelWidget* GetPanelSubWidget(UUserWidget* ParentWidget, const FName& PanelWidgetName);
+	
+	
 	void InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory);
 	void InitOtherInventoryWidget(TSharedPtr<IInventoryInterface> OtherInventory);
 	void HideSecondaryInventory();
