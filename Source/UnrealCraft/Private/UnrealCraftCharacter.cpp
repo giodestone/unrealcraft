@@ -158,7 +158,10 @@ void AUnrealCraftCharacter::Interact()
 			TSharedPtr<IInventoryInterface> WorldInventory;
 			if (GameState->GetInventoryDatabase().GetWorldInventory(VoxelUtils::WorldToBlockPosition(HitResult.Location - HitResult.Normal), WorldInventory))
 			{
-				PlayerHUD->GetInventoryScreenWidget()->ShowBothInventories(GameState->GetPlayerInventory().Get(), WorldInventory.Get());
+				bool IsInventoryMenuDisplayed;
+				PlayerHUD->GetInventoryScreenWidget()->ToggleBothInventories(GameState->GetPlayerInventory(), WorldInventory, IsInventoryMenuDisplayed);
+
+				UpdateInteractionMode(IsInventoryMenuDisplayed);
 			}
 		}
 		break;
@@ -170,22 +173,31 @@ void AUnrealCraftCharacter::Interact()
 	}
 }
 
+void AUnrealCraftCharacter::UpdateInteractionMode(bool IsInventoryMenuDisplayed) const
+{
+	auto PlayerController = GetWorld()->GetFirstPlayerController();
+
+	if (PlayerController == nullptr)
+		return;
+	
+	if (IsInventoryMenuDisplayed)
+	{
+		PlayerController->SetInputMode(FInputModeUIOnly());
+		PlayerController->SetShowMouseCursor(true);
+	}
+	else
+	{
+		PlayerController->SetInputMode(FInputModeGameOnly());
+		PlayerController->SetShowMouseCursor(false);
+	}
+}
+
 void AUnrealCraftCharacter::PlayerInventory()
 {
 	bool IsInventoryMenuDisplayed;
 	PlayerHUD->GetInventoryScreenWidget()->TogglePlayerInventory(GameState->GetPlayerInventory(), IsInventoryMenuDisplayed);
 
-	if (IsInventoryMenuDisplayed)
-	{
-		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
-		GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
-	}
-	else
-	{
-		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameOnly());
-		GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(false);
-	}
-		
+	UpdateInteractionMode(IsInventoryMenuDisplayed);
 }
 
 void AUnrealCraftCharacter::PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block)

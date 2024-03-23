@@ -18,5 +18,5 @@ enum class EDirection : int32
 UENUM()
 enum class EBlock
 {
-	Null, Air, Stone, Dirt, Grass, Inventory
+	Null, Air, Stone, Dirt, Grass, Planks, Inventory
 };

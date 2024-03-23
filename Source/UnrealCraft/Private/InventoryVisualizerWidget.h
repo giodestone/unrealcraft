@@ -55,6 +55,7 @@ private:
 	TObjectPtr<UInventoryItemWidget> CurrentHeldItem;
 
 	TSharedPtr<IInventoryInterface> CurrentPlayerInventory;
+	TSharedPtr<IInventoryInterface> CurrentOtherInventory;
 
 	// if slot clicked and item is in it
 	// give the item to the mouse
@@ -63,24 +64,40 @@ private:
 
 public:
 	void TogglePlayerInventory(TSharedPtr<IInventoryInterface> PlayerInventory, bool& OutIsMenuDisplayed);
-	void ShowBothInventories(IInventoryInterface* PlayerInventory, IInventoryInterface* OtherInventory);
+	void ToggleBothInventories(TSharedPtr<IInventoryInterface> PlayerInventory, TSharedPtr<IInventoryInterface> OtherInventory, bool& OutIsMenuDisplayed);
 	void Hide();
 
 	UFUNCTION()
 	void OnSlotButtonClicked(UInventorySlotWidget* Widget);
+	
 protected:
 	/**
 	 * Callled once when the game is started.
 	 */
 	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
 	void InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory);
+	void InitOtherInventoryWidget(TSharedPtr<IInventoryInterface> OtherInventory);
 	void HideSecondaryInventory();
 	void HidePlayerInventory();
+
+	/**
+	 * Update the currently held items' position to track the mouse.
+	 * @remarks Should bec called in {@link NativeTick}.
+	 */
 	void TrackCurrentlyHeldItem();
 
-protected:
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	/**
+	 * Spawn an inventory grid by creating slots and populating them with items from the inventory.
+	 * @param Inventory The inventory with the items to spawn.
+	 * @param GridMenuWidget The 'owning' widget that the grid represents.
+	 * @param SlotParent Where the slots should be added to.
+	 * @param SlotBlueprint The slots that will be spawned.
+	 * @param ItemBlueprint The items that would be put into the slots, if they are in the inventory.
+	 */
+	void SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint);
+
 };

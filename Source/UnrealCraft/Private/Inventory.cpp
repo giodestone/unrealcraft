@@ -17,30 +17,16 @@ Inventory::~Inventory()
 {
 }
 
-// bool Inventory::Open()
-// {
-// 	InventoryVisualizer->ShowBothInventories(GameState->GetPlayerInventory().Get(), this);
-// 	
-// 	return true;
-// }
-//
-// bool Inventory::Close()
-// {
-// 	InventoryVisualizer->Hide();
-// 	
-// 	return true;
-// }
-
 bool Inventory::InsertAnywhere(UUnrealCraftItem* Item)
 {
 	// find first empty slot
-
 	FIntVector2 PreferedSlot(0,0);
 	
 	for (auto ItemTuple : Items)
 	{
 		if (ItemTuple.Key == PreferedSlot)
 		{
+			// TODO: implement stacking
 			if (PreferedSlot.X < InventorySize.X)
 				PreferedSlot.X += 1;
 			else if (PreferedSlot.Y + 1 >= InventorySize.Y)

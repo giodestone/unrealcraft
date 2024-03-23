@@ -30,10 +30,11 @@ FIntVector2 UInventorySlotWidget::GetRepresentedInventoryCoord() const
 	return RepresentedInventoryCoord;
 }
 
-void UInventorySlotWidget::InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer)
+void UInventorySlotWidget::InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer, UUserWidget* InAssociatedInventory)
 {
 	this->RepresentedInventoryCoord = InRepresentedInventoryCoord;
 	OwningInventoryVisualizer = InOwningInventoryVisualizer;
+	AssociatedInventory = InAssociatedInventory;
 }
 
 void UInventorySlotWidget::AddItemWidget(UInventoryItemWidget* WidgetToAdd)

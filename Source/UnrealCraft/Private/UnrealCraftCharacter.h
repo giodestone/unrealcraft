@@ -73,4 +73,9 @@ public:
 private:
 	void PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block);
 
+	/**
+	 * Update the character controller's interaction mode depending on if something is displayed or not.
+	 */
+	void UpdateInteractionMode(bool IsInventoryMenuDisplayed) const;
+
 };

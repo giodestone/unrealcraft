@@ -29,6 +29,9 @@ private:
 	
 	FIntVector2 RepresentedInventoryCoord;
 
+	UPROPERTY()
+	TObjectPtr<UUserWidget> AssociatedInventory;
+	
 public:
 	FIntVector2 GetRepresentedInventoryCoord() const;
 
@@ -40,7 +43,7 @@ private:
 	TObjectPtr<UInventoryItemWidget> CurrentItemWidget;
 	
 public:
-	void InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer);
+	void InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer, UUserWidget* InAssociatedInventory);
 
 	/**
 	 * Add a widget to be held by this widget.

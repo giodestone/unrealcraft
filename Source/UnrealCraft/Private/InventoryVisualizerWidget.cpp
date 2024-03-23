@@ -16,18 +16,21 @@ void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<IInventoryInte
 	{
 	case Hidden:
 		InitPlayerInventoryWidget(PlayerInventory);
-		State = ShowingPlayer;
-		OutIsMenuDisplayed = true;
+
 		this->CurrentPlayerInventory = PlayerInventory;
+		OutIsMenuDisplayed = true;
+
+		State = ShowingPlayer;
 		break;
 		
-	case ShowingBoth:
+	case ShowingBoth: // TODO: Identical to ToggleBothInventories
 		HideSecondaryInventory();
+		CurrentOtherInventory = nullptr;
 	case ShowingPlayer:
 		HidePlayerInventory();
-		State = Hidden;
-		CurrentPlayerInventory = nullptr;
+		this->CurrentPlayerInventory = nullptr;
 		OutIsMenuDisplayed = false;
+		State = Hidden;
 		break;
 		
 	}
@@ -35,9 +38,33 @@ void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<IInventoryInte
 	// PlayerInventoryMenuWidget->WidgetTree->GetAllWidgets(Children);
 }
 
-void UInventoryVisualizerWidget::ShowBothInventories(IInventoryInterface* PlayerInventory,
-	IInventoryInterface* OtherInventory)
+void UInventoryVisualizerWidget::ToggleBothInventories(TSharedPtr<IInventoryInterface> PlayerInventory,
+                                                     TSharedPtr<IInventoryInterface> OtherInventory,
+                                                     bool& OutIsMenuDisplayed)
 {
+	switch (State)
+	{
+	case Hidden:
+		InitPlayerInventoryWidget(PlayerInventory);
+		InitOtherInventoryWidget(OtherInventory);
+
+		this->CurrentPlayerInventory = PlayerInventory;
+		this->CurrentOtherInventory = OtherInventory;
+
+		OutIsMenuDisplayed = true;
+		State = ShowingBoth;
+		break;
+
+	case ShowingBoth: // TODO: Identical to TogglePlayerInventory
+		HideSecondaryInventory();
+		CurrentOtherInventory = nullptr;
+	case ShowingPlayer:
+		HidePlayerInventory();
+		this->CurrentPlayerInventory = nullptr;
+		OutIsMenuDisplayed = false;
+		State = Hidden;
+		break;
+	}
 }
 
 void UInventoryVisualizerWidget::Hide()
@@ -112,27 +139,23 @@ void UInventoryVisualizerWidget::NativeConstruct()
 	Super::NativeConstruct();
 }
 
+void UInventoryVisualizerWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	TrackCurrentlyHeldItem();
+}
+
+
 void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory)
 {
-	for (int32 x = 0; x < PlayerInventory->GetSize().X; x++)
-	{
-		for (int32 y = 0; y < PlayerInventory->GetSize().Y; y++)
-		{
-			auto NewSlotWidget = Cast<UInventorySlotWidget>(CreateWidget(GetWorld(), InventorySlotBlueprint));
-			NewSlotWidget->InitializeData(FIntVector2(x,y), this);
-			PlayerInventoryMenuWidgetSlotParent->AddChild(NewSlotWidget);
-
-			UUnrealCraftItem* Item;
-			if (PlayerInventory->HasItem(FIntVector2(x, y), Item))
-			{
-				auto NewItemWidget = Cast<UInventoryItemWidget>(CreateWidget(GetWorld(), InventoryItemBlueprint));
-				NewSlotWidget->AddItemWidget(NewItemWidget);
-				NewItemWidget->SetRepresentedItem(Item);
-			}
-		}
-	}
+	SpawnInventoryGrid(PlayerInventory, PlayerInventoryMenuWidget, PlayerInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint);
 
 	this->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UInventoryVisualizerWidget::InitOtherInventoryWidget(TSharedPtr<IInventoryInterface> OtherInventory)
+{
 }
 
 void UInventoryVisualizerWidget::HideSecondaryInventory()
@@ -159,9 +182,23 @@ void UInventoryVisualizerWidget::TrackCurrentlyHeldItem()
 	}
 }
 
-void UInventoryVisualizerWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+void UInventoryVisualizerWidget::SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint)
 {
-	Super::NativeTick(MyGeometry, InDeltaTime);
+	for (int32 x = 0; x < Inventory->GetSize().X; x++)
+	{
+		for (int32 y = 0; y < Inventory->GetSize().Y; y++)
+		{
+			auto NewSlotWidget = Cast<UInventorySlotWidget>(CreateWidget(GetWorld(), SlotBlueprint));
+			NewSlotWidget->InitializeData(FIntVector2(x,y), this, GridMenuWidget);
+			SlotParent->AddChild(NewSlotWidget);
 
-	TrackCurrentlyHeldItem();
+			UUnrealCraftItem* Item;
+			if (Inventory->HasItem(FIntVector2(x, y), Item))
+			{
+				auto NewItemWidget = Cast<UInventoryItemWidget>(CreateWidget(GetWorld(), ItemBlueprint));
+				NewSlotWidget->AddItemWidget(NewItemWidget);
+				NewItemWidget->SetRepresentedItem(Item);
+			}
+		}
+	}
 }

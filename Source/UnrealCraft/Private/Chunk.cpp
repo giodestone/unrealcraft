@@ -342,6 +342,18 @@ int8 AChunk::GetTextureIndex(EBlock Block, FVector Normal) const
 		
 	case EBlock::Stone:
 		return 3;
+
+	case EBlock::Inventory:
+		if (Normal == FVector::UpVector)
+			return 4;
+		if (Normal == FVector::DownVector)
+			return 7;
+		if (Normal == FVector::ForwardVector)
+			return 6;
+		return 5;
+		
+	case EBlock::Planks:
+		return 7;
 		
 	default:
 #if UE_BUILD_DEVELOPMENT

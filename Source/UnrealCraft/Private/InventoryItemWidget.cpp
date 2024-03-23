@@ -15,8 +15,15 @@ void UInventoryItemWidget::SetRepresentedItem(TObjectPtr<UUnrealCraftItem> NewRe
 
 	if (IconImage == nullptr || StackText == nullptr)
 		return;
+
+	if (GetWorld() == nullptr)
+		return;
+
+	if (GetWorld()->GetGameState() == nullptr)
+		return;
+
+	auto ItemInfoDatabase = dynamic_cast<AVoxelGameState*>(GetWorld()->GetGameState())->GetItemInfoDatabase();
 	
-	auto ItemInfoDatabase = Cast<AVoxelGameState>(GetWorld()->GetGameState())->GetItemInfoDatabase();
 	auto RepresentedItemInfo = ItemInfoDatabase->GetInfo(NewRepresentedItem->GetAssociatedItemID());
 
 	FSlateImageBrush ImageBrush(RepresentedItemInfo.ItemThumbnail->GetFName(),

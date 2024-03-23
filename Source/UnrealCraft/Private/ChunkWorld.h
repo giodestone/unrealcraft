@@ -27,7 +27,7 @@ public:
 	int32 DrawDistanceAroundPlayer = 5;
 
 	UPROPERTY(EditAnywhere, Category="Chunks")
-	FIntVector NewChunkSize = FIntVector(32,32,128);
+	FIntVector NewChunkSize = FIntVector(32,32,32);
 	
 	UPROPERTY(EditInstanceOnly, Category="Chunks")
 	TObjectPtr<UMaterialInterface> ChunkMaterial;
