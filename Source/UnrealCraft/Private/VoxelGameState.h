@@ -8,6 +8,7 @@
 #include "InventoryVisualizerWidget.h"
 #include "VoxelGameState.generated.h"
 
+class PlayerInventory;
 class UItemInfoDatabase;
 
 /**
@@ -23,7 +24,7 @@ class AVoxelGameState : public AGameStateBase
 	UPROPERTY()
 	TObjectPtr<UInventoryVisualizerWidget> InventoryVisualizer;
 
-	TSharedPtr<IInventoryInterface> PlayerInventory;
+	TSharedPtr<PlayerInventory> MainPlayerInventory;
 
 public:
 	UPROPERTY(EditDefaultsOnly)
@@ -36,9 +37,9 @@ public:
 	
 	void SetInventoryVisualizer(TObjectPtr<UInventoryVisualizerWidget> NewInventoryVisualizer) { InventoryVisualizer = NewInventoryVisualizer; }
 
-	TSharedPtr<IInventoryInterface> GetPlayerInventory() const { return PlayerInventory; }
+	TSharedPtr<PlayerInventory> GetPlayerInventory() const { return MainPlayerInventory; }
 	
-	void SetPlayerInventory(TSharedPtr<IInventoryInterface> NewPlayerInventory) { PlayerInventory = NewPlayerInventory; }
+	void SetPlayerInventory(TSharedPtr<PlayerInventory> NewPlayerInventory) { MainPlayerInventory = NewPlayerInventory; }
 
 	TObjectPtr<UItemInfoDatabase> GetItemInfoDatabase() const { return ItemInfoDatabase; }
 };

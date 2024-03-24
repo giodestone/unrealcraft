@@ -3,6 +3,7 @@
 
 #include "PlayerHUD.h"
 
+#include "PlayerHotbarWidget.h"
 #include "Blueprint/UserWidget.h"
 
 void APlayerHUD::BeginPlay()
@@ -17,6 +18,7 @@ void APlayerHUD::BeginPlay()
 	if (InventoryScreenWidgetBlueprint == nullptr)
 		GLog->Log(ELogVerbosity::Error, TEXT("[APlayerHUD::BeginPlay]: InventoryScreenWidgetBlueprint not set. Will not instanciate inventory widget."));
 
+	
 	InventoryScreenWidget = CreateWidget<UInventoryVisualizerWidget>(GetWorld(), InventoryScreenWidgetBlueprint);
 
 	if (InventoryScreenWidget == nullptr)
@@ -24,6 +26,16 @@ void APlayerHUD::BeginPlay()
 	else
 	{
 		InventoryScreenWidget->AddToViewport();
+	}
+
+	
+	HotbarWidget = CreateWidget<UPlayerHotbarWidget>(GetWorld(), HotbarWidgetBlueprint);
+
+	if (HotbarWidget == nullptr)
+		GLog->Log(ELogVerbosity::Error, TEXT("[APlayerHUD::BeginPlay]: Unable to instance inventory screen."));
+	else
+	{
+		HotbarWidget->AddToViewport();
 	}
 }
 

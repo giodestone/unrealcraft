@@ -11,11 +11,9 @@
  */
 class Inventory : public IInventoryInterface
 {
-	const FIntVector2 DefaultSize = FIntVector2(9, 4);
-	
 	TMap<FIntVector2, TObjectPtr<UUnrealCraftItem>> Items;
 	FIntVector2 InventorySize;
-	
+
 public:
 	Inventory();
 	virtual ~Inventory() override;
@@ -28,9 +26,10 @@ public:
 protected:
 	virtual void SetSize(FIntVector2 Size) override;
 
+	virtual FIntVector2 GetDefaultSize() const;
+	
 	/**
 	 * Check whether the coord is between 0 and one less than Size.X, and Size.Y.
 	 */
 	bool IsCoordInBounds(const FIntVector2& Coord) const;
-	
 };

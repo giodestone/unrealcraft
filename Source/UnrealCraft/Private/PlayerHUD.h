@@ -8,6 +8,7 @@
 #include "GameFramework/HUD.h"
 #include "PlayerHUD.generated.h"
 
+class UPlayerHotbarWidget;
 class UInventoryVisualizerWidget;
 /**
  * Manages and represents the players' HUD.
@@ -22,9 +23,13 @@ class APlayerHUD : public AHUD
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UInventoryVisualizerWidget> InventoryScreenWidgetBlueprint;
-	//
-	// UPROPERTY(EditDefaultsOnly)
-	// TSubclassOf<UUserWidget> HotbarWidget;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UPlayerHotbarWidget> HotbarWidgetBlueprint;
+
+	
+	UPROPERTY()
+	TObjectPtr<UPlayerHotbarWidget> HotbarWidget;
 
 	UPROPERTY()
 	TObjectPtr<UInventoryVisualizerWidget> InventoryScreenWidget;

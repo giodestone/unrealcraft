@@ -182,7 +182,7 @@ void UInventoryVisualizerWidget::NativeTick(const FGeometry& MyGeometry, float I
 void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory)
 {
 	CurrentPlayerInventory = PlayerInventory;
-	SpawnInventoryGrid(PlayerInventory, PlayerInventoryMenuWidget, PlayerInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint);
+	SpawnInventoryGrid(PlayerInventory, PlayerInventoryMenuWidget, PlayerInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint, FIntVector2(0, -1));
 
 	PlayerInventoryMenuWidget->SetVisibility(ESlateVisibility::Visible);
 	this->SetVisibility(ESlateVisibility::Visible);
@@ -222,11 +222,12 @@ void UInventoryVisualizerWidget::TrackCurrentlyHeldItem()
 	}
 }
 
-void UInventoryVisualizerWidget::SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint)
+void UInventoryVisualizerWidget::SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint, FIntVector2
+                                                    SizeOffset)
 {
-	for (int32 x = 0; x < Inventory->GetSize().X; x++)
+	for (int32 x = 0; x < Inventory->GetSize().X + SizeOffset.X; x++)
 	{
-		for (int32 y = 0; y < Inventory->GetSize().Y; y++)
+		for (int32 y = 0; y < Inventory->GetSize().Y + SizeOffset.Y; y++)
 		{
 			auto NewSlotWidget = Cast<UInventorySlotWidget>(CreateWidget(GetWorld(), SlotBlueprint));
 			NewSlotWidget->InitializeData(FIntVector2(x,y), this, GridMenuWidget);

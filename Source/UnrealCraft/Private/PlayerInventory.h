@@ -12,5 +12,8 @@ class PlayerInventory : public Inventory
 {
 public:
 	PlayerInventory();
-	~PlayerInventory();
+	virtual ~PlayerInventory() override;
+
+protected:
+	virtual FIntVector2 GetDefaultSize() const override;
 };

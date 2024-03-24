@@ -81,9 +81,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Hide();
 
+	/**
+	 * For {@link UInventorySlotWidget} to call when its clicked on.
+	 */
 	UFUNCTION()
 	void OnSlotButtonClicked(UInventorySlotWidget* Widget);
 
+	/**
+	 * Get the current state of the widget.
+	 */
 	UFUNCTION(BlueprintCallable)
 	EInventoryVisualiserState GetState() const;
 
@@ -106,11 +112,25 @@ private:
 	 * @return nullptr if not found. Logs an error too.
 	 */
 	UPanelWidget* GetPanelSubWidget(UUserWidget* ParentWidget, const FName& PanelWidgetName);
-	
-	
+
+	/**
+	 * Setup a grid of slots and fill with items from the player. 
+	 */
 	void InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory);
+
+	/**
+	 * Setup a grid of slots and fill with items from the other inventory.
+	 */
 	void InitOtherInventoryWidget(TSharedPtr<IInventoryInterface> OtherInventory);
+
+	/**
+	 * Hide the secondary inventory and destory the slots.
+	 */
 	void HideSecondaryInventory();
+
+	/**
+	 * Hide the player inventory and destory the slots.
+	 */
 	void HidePlayerInventory();
 
 	/**
@@ -126,7 +146,9 @@ private:
 	 * @param SlotParent Where the slots should be added to.
 	 * @param SlotBlueprint The slots that will be spawned.
 	 * @param ItemBlueprint The items that would be put into the slots, if they are in the inventory.
+	 * @param SizeOffset This value is added to the {@link Inventory.GetSize()}. Can be used to increase/decrease the values.
 	 */
-	void SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint);
+	void SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint, FIntVector2
+	                        SizeOffset = FIntVector2(0, 0));
 
 };

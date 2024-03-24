@@ -10,7 +10,7 @@
 
 Inventory::Inventory()
 {
-	SetSize(DefaultSize); // Yes call any derived class.
+	SetSize(GetDefaultSize());
 }
 
 Inventory::~Inventory()
@@ -104,6 +104,11 @@ void Inventory::SetSize(FIntVector2 Size)
 	}
 	
 	this->InventorySize = Size;
+}
+
+FIntVector2 Inventory::GetDefaultSize() const
+{
+	return FIntVector2(9, 4);
 }
 
 bool Inventory::IsCoordInBounds(const FIntVector2& Coord) const

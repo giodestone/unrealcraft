@@ -26,9 +26,7 @@ void UInventoryItemWidget::SetRepresentedItem(TObjectPtr<UUnrealCraftItem> NewRe
 	
 	auto RepresentedItemInfo = ItemInfoDatabase->GetInfo(NewRepresentedItem->GetAssociatedItemID());
 
-	FSlateImageBrush ImageBrush(RepresentedItemInfo.ItemThumbnail->GetFName(),
-		FVector2f(RepresentedItemInfo.ItemThumbnail->GetSizeX(), RepresentedItemInfo.ItemThumbnail->GetSizeY()));
-	IconImage->SetBrush(ImageBrush);
+	IconImage->SetBrushFromTexture(RepresentedItemInfo.ItemThumbnail);
 	
 	StackText->SetText(FText::AsNumber(NewRepresentedItem->GetCurrentStack()));
 }

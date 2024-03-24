@@ -31,7 +31,13 @@ void AVoxelGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	auto VoxelGameState = Cast<AVoxelGameState>(GameState);
+	if (GetWorld() == nullptr)
+		return;
+
+	if (GetWorld()->GetGameState() == nullptr)
+		return;
+	
+	auto VoxelGameState = dynamic_cast<AVoxelGameState*>(GetWorld()->GetGameState());
 	
 	// TODO: If this game ever goes multiplayer - this needs to be fixed.
 	
@@ -40,12 +46,16 @@ void AVoxelGameMode::PostLogin(APlayerController* NewPlayer)
 
 	auto InitialItem = NewObject<UUnrealCraftItem>();
 	InitialItem->Initialize("stone");
+
+	auto InitialHotbarItem = NewObject<UUnrealCraftItem>();
+	InitialHotbarItem->Initialize("stone");
 	
 	auto CreatedPlayerInventory = MakeShared<PlayerInventory>();
 	CreatedPlayerInventory->InsertAnywhere(InitialItem);
+	CreatedPlayerInventory->InsertInto(FIntVector2(0, 4), InitialHotbarItem);
 	VoxelGameState->GetInventoryDatabase().AddEntityInventory("Player", CreatedPlayerInventory);
 
-	Cast<AVoxelGameState>(GameState)->SetPlayerInventory(CreatedPlayerInventory);
+	VoxelGameState->SetPlayerInventory(CreatedPlayerInventory);
 
 	// GLog->Logf(ELogVerbosity::Log, TEXT("[]: New Player Joined, name: %s"), NewPlayer->GetName().GetCharArray());
 }
