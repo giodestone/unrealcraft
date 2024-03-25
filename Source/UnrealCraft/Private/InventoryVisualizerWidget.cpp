@@ -6,22 +6,24 @@
 #include "InventoryInterface.h"
 #include "InventoryItemWidget.h"
 #include "InventorySlotWidget.h"
+#include "PlayerInventory.h"
 #include "VoxelGameState.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
 
-void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<IInventoryInterface> PlayerInventory, bool& OutIsMenuDisplayed)
+void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<PlayerInventory> InPlayerInventory, bool& OutIsMenuDisplayed)
 {
 	switch (State)
 	{
 	case Hidden:
-		InitPlayerInventoryWidget(PlayerInventory);
+		InitPlayerInventoryWidget(InPlayerInventory);
 
 		
-		this->CurrentPlayerInventory = PlayerInventory;
+		this->CurrentPlayerInventory = InPlayerInventory;
 		OutIsMenuDisplayed = true;
 
 		State = ShowingPlayer;
+		this->SetFocus();
 		break;
 		
 	case ShowingBoth: // TODO: Identical to ToggleBothInventories, Hide
@@ -39,21 +41,22 @@ void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<IInventoryInte
 	// PlayerInventoryMenuWidget->WidgetTree->GetAllWidgets(Children);
 }
 
-void UInventoryVisualizerWidget::ToggleBothInventories(TSharedPtr<IInventoryInterface> PlayerInventory,
+void UInventoryVisualizerWidget::ToggleBothInventories(TSharedPtr<PlayerInventory> InPlayerInventory,
                                                      TSharedPtr<IInventoryInterface> OtherInventory,
                                                      bool& OutIsMenuDisplayed)
 {
 	switch (State)
 	{
 	case Hidden:
-		InitPlayerInventoryWidget(PlayerInventory);
+		InitPlayerInventoryWidget(InPlayerInventory);
 		InitOtherInventoryWidget(OtherInventory);
 
-		this->CurrentPlayerInventory = PlayerInventory;
+		this->CurrentPlayerInventory = InPlayerInventory;
 		this->CurrentOtherInventory = OtherInventory;
 
 		OutIsMenuDisplayed = true;
 		State = ShowingBoth;
+		this->SetFocus();
 		break;
 
 	case ShowingBoth: // TODO: Identical to TogglePlayerInventory, Hide
@@ -95,12 +98,15 @@ void UInventoryVisualizerWidget::OnSlotButtonClicked(UInventorySlotWidget* Widge
 		CurrentHeldItem->SetVisibility(ESlateVisibility::HitTestInvisible);
 
 		UUnrealCraftItem* RemovedItem; // unused because it is already part of CurrentHeldItem.
-		CurrentPlayerInventory->RemoveFrom(Widget->GetRepresentedInventoryCoord(), RemovedItem);
+		Widget->GetAssociatedInventory()->RemoveFrom(Widget->GetRepresentedInventoryCoord(), RemovedItem);
 	}
 	else if (CurrentHeldItem != nullptr && !Widget->IsHoldingWidget())
 	{
-		CurrentHeldItem->SetRenderTranslation(FVector2D::Zero());
+		// actually add to inventory
+		Widget->GetAssociatedInventory()->InsertInto(Widget->GetRepresentedInventoryCoord(), CurrentHeldItem->GetRepresentedItem());
+		
 		CurrentHeldItem->RemoveFromParent();
+		CurrentHeldItem->SetRenderTranslation(FVector2D::Zero());
 		CurrentHeldItem->SetVisibility(ESlateVisibility::Visible);
 		Widget->AddItemWidget(CurrentHeldItem);
 		CurrentHeldItem = nullptr;
@@ -110,6 +116,20 @@ void UInventoryVisualizerWidget::OnSlotButtonClicked(UInventorySlotWidget* Widge
 EInventoryVisualiserState UInventoryVisualizerWidget::GetState() const
 {
 	return State;
+}
+
+void UInventoryVisualizerWidget::OnPlayerInventoryAction()
+{
+	Hide();
+	
+	if (GetWorld() == nullptr)
+		return;
+		
+	if(GetWorld()->GetFirstPlayerController() == nullptr)
+		return;
+	
+	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameOnly());
+	GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(false);
 }
 
 void UInventoryVisualizerWidget::SetupComponentsFromName()
@@ -179,10 +199,10 @@ void UInventoryVisualizerWidget::NativeTick(const FGeometry& MyGeometry, float I
 }
 
 
-void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory)
+void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TSharedPtr<PlayerInventory> InPlayerInventory)
 {
-	CurrentPlayerInventory = PlayerInventory;
-	SpawnInventoryGrid(PlayerInventory, PlayerInventoryMenuWidget, PlayerInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint, FIntVector2(0, -1));
+	CurrentPlayerInventory = InPlayerInventory;
+	SpawnInventoryGrid(InPlayerInventory, PlayerInventoryMenuWidget, PlayerInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint, FIntVector2(0, -1));
 
 	PlayerInventoryMenuWidget->SetVisibility(ESlateVisibility::Visible);
 	this->SetVisibility(ESlateVisibility::Visible);
@@ -230,7 +250,7 @@ void UInventoryVisualizerWidget::SpawnInventoryGrid(TSharedPtr<IInventoryInterfa
 		for (int32 y = 0; y < Inventory->GetSize().Y + SizeOffset.Y; y++)
 		{
 			auto NewSlotWidget = Cast<UInventorySlotWidget>(CreateWidget(GetWorld(), SlotBlueprint));
-			NewSlotWidget->InitializeData(FIntVector2(x,y), this, GridMenuWidget);
+			NewSlotWidget->InitializeData(FIntVector2(x,y), this, Inventory);
 			SlotParent->AddChild(NewSlotWidget);
 
 			UUnrealCraftItem* Item;
@@ -242,4 +262,26 @@ void UInventoryVisualizerWidget::SpawnInventoryGrid(TSharedPtr<IInventoryInterfa
 			}
 		}
 	}
+}
+
+FReply UInventoryVisualizerWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	if (State == Hidden)
+		return FReply::Unhandled();
+	
+	// TODO: Explore getting the keys to check for from the input here specifically. It seems possible for the player input but not here? Who designed this.
+	if (InKeyEvent.GetKey() == EKeys::I || InKeyEvent.GetKey() == EKeys::E)
+	{
+		if (GetWorld() == nullptr)
+			return FReply::Unhandled();
+		
+		if(GetWorld()->GetFirstPlayerController() == nullptr)
+			return FReply::Unhandled();
+
+		OnPlayerInventoryAction();
+		
+		return FReply::Handled();
+	}
+
+	return FReply::Unhandled();
 }

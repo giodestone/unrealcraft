@@ -45,7 +45,7 @@ void UPlayerHotbarWidget::SpawnSlotsAndItems()
 	for (int32 x = 0; x < RepresentedPlayerInventory->GetSize().X; x++)
 	{
 		auto NewSlotWidget = Cast<UInventorySlotWidget>(CreateWidget(GetWorld(), SlotBlueprint));
-		NewSlotWidget->InitializeData(FIntVector2(x,y), InventoryVisualizerWidget, this);
+		NewSlotWidget->InitializeData(FIntVector2(x,y), InventoryVisualizerWidget, RepresentedPlayerInventory);
 		SlotParent->AddChild(NewSlotWidget);
 
 		UUnrealCraftItem* Item;

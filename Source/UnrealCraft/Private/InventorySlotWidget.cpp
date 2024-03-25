@@ -30,7 +30,7 @@ FIntVector2 UInventorySlotWidget::GetRepresentedInventoryCoord() const
 	return RepresentedInventoryCoord;
 }
 
-void UInventorySlotWidget::InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer, UUserWidget* InAssociatedInventory)
+void UInventorySlotWidget::InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer, TSharedPtr<IInventoryInterface> InAssociatedInventory)
 {
 	this->RepresentedInventoryCoord = InRepresentedInventoryCoord;
 	OwningInventoryVisualizer = InOwningInventoryVisualizer;
@@ -59,4 +59,9 @@ UInventoryItemWidget* UInventorySlotWidget::GetCurrentWidget() const
 bool UInventorySlotWidget::IsHoldingWidget() const
 {
 	return GetCurrentWidget() != nullptr;
+}
+
+TSharedPtr<IInventoryInterface> UInventorySlotWidget::GetAssociatedInventory() const
+{
+	return AssociatedInventory;
 }

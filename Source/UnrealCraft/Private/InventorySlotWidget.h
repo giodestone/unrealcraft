@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "InventorySlotWidget.generated.h"
 
+class IInventoryInterface;
 class UInventoryItemWidget;
 class UInventoryVisualizerWidget;
 class UButton;
@@ -28,9 +29,8 @@ private:
 	TObjectPtr<UButton> ButtonWidget;
 	
 	FIntVector2 RepresentedInventoryCoord;
-
-	UPROPERTY()
-	TObjectPtr<UUserWidget> AssociatedInventory;
+	
+	TSharedPtr<IInventoryInterface> AssociatedInventory;
 	
 public:
 	FIntVector2 GetRepresentedInventoryCoord() const;
@@ -43,7 +43,7 @@ private:
 	TObjectPtr<UInventoryItemWidget> CurrentItemWidget;
 	
 public:
-	void InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer, UUserWidget* InAssociatedInventory);
+	void InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer, TSharedPtr<IInventoryInterface> InAssociatedInventory);
 
 	/**
 	 * Add a widget to be held by this widget.
@@ -61,6 +61,8 @@ public:
 	UInventoryItemWidget* GetCurrentWidget() const;
 
 	bool IsHoldingWidget() const;
+
+	TSharedPtr<IInventoryInterface> GetAssociatedInventory() const;
 
 protected:
 	virtual void NativeOnInitialized() override;

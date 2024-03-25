@@ -29,13 +29,19 @@ void AUnrealCraftCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GameState = Cast<AVoxelGameState>(GetWorld()->GetGameState());
+	check (GetWorld() != nullptr);
+	check (GetWorld()->GetGameState() != nullptr)
+	
+	GameState = dynamic_cast<AVoxelGameState*>(GetWorld()->GetGameState());
 	if (GameState == nullptr)
 	{
 		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get gamestate."));
 	}
 
-	PlayerHUD = Cast<APlayerHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	check (GetWorld()->GetFirstPlayerController() != nullptr)
+	check (GetWorld()->GetFirstPlayerController()->GetHUD() != nullptr)
+	
+	PlayerHUD = dynamic_cast<APlayerHUD*>(GetWorld()->GetFirstPlayerController()->GetHUD());
 	if (PlayerHUD == nullptr)
 	{
 		GLog->Log(ELogVerbosity::Error, TEXT("[AUnrealCraftCharacter::PlayerInventory]: Unable to get hud."));
@@ -105,7 +111,7 @@ void AUnrealCraftCharacter::StartHit()
 	FCollisionQueryParams CollisionParams;
 	auto HasHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5.f);
+	// DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5.f);
 
 	if (!HasHit)
 		return;

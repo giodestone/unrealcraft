@@ -9,6 +9,7 @@
 class UInventoryItemWidget;
 class UInventorySlotWidget;
 class IInventoryInterface;
+class PlayerInventory;
 
 UENUM(BlueprintType)
 enum EInventoryVisualiserState
@@ -66,14 +67,14 @@ private:
 	TObjectPtr<UInventoryItemWidget> CurrentHeldItem;
 
 	
-	TSharedPtr<IInventoryInterface> CurrentPlayerInventory;
+	TSharedPtr<PlayerInventory> CurrentPlayerInventory;
 	TSharedPtr<IInventoryInterface> CurrentOtherInventory;
 	
 	EInventoryVisualiserState State = Hidden;
 
 public:
-	void TogglePlayerInventory(TSharedPtr<IInventoryInterface> PlayerInventory, bool& OutIsMenuDisplayed);
-	void ToggleBothInventories(TSharedPtr<IInventoryInterface> PlayerInventory, TSharedPtr<IInventoryInterface> OtherInventory, bool& OutIsMenuDisplayed);
+	void TogglePlayerInventory(TSharedPtr<PlayerInventory> InPlayerInventory, bool& OutIsMenuDisplayed);
+	void ToggleBothInventories(TSharedPtr<PlayerInventory> InPlayerInventory, TSharedPtr<IInventoryInterface> OtherInventory, bool& OutIsMenuDisplayed);
 
 	/**
 	 * Hides all visible UI.
@@ -92,6 +93,9 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable)
 	EInventoryVisualiserState GetState() const;
+
+	UFUNCTION()
+	void OnPlayerInventoryAction();
 
 protected:
 	/**
@@ -116,7 +120,7 @@ private:
 	/**
 	 * Setup a grid of slots and fill with items from the player. 
 	 */
-	void InitPlayerInventoryWidget(TSharedPtr<IInventoryInterface> PlayerInventory);
+	void InitPlayerInventoryWidget(TSharedPtr<PlayerInventory> InPlayerInventory);
 
 	/**
 	 * Setup a grid of slots and fill with items from the other inventory.
@@ -151,4 +155,6 @@ private:
 	void SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint, FIntVector2
 	                        SizeOffset = FIntVector2(0, 0));
 
+protected:
+	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 };

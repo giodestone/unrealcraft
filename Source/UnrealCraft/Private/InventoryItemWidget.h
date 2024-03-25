@@ -34,6 +34,8 @@ public:
 	
 	void SetRepresentedItem(TObjectPtr<UUnrealCraftItem> NewRepresentedItem);
 
+	UUnrealCraftItem* GetRepresentedItem() const { return RepresentedItem; }
+
 protected:
 	virtual void NativeOnInitialized() override;
 };
