@@ -20,27 +20,28 @@ class AChunk : public ABaseChunk
 {
 	GENERATED_BODY()
 	
-	FChunkMeshData MeshData;
-    TArray<EBlock> Blocks;
-
-    int VertexCount = 0;
-
+	/**
+	 * Mask for when faces are retrived.
+	 */
 	struct FMask
 	{
 		EBlock Block;
 		int Normal;
 	};
+
+	FChunkMeshData MeshData;
+	TArray<EBlock> Blocks;
+
+	int VertexCount = 0;
 	
 public:	
 	AChunk();
-
-protected:
-	virtual void BeginPlay() override;
-
-	virtual void OnInitialiseComplete() override;
-
-public:	
+	
 	virtual void Tick(float DeltaTime) override;
+
+	/**
+	 * Clears any data associated with the mesh.
+	 */
 	void ClearMeshData();
 
 	virtual void ModifyVoxel(const FIntVector Position, const EBlock NewBlock) override;
@@ -52,8 +53,19 @@ public:
 	 * @return The block at that coordinate
 	 */
 	virtual EBlock GetBlock(const FIntVector& Coord) const override;
-private:
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void OnInitialiseComplete() override;
 	
+private:
+	/**
+	 * Changes the voxel at that to a new one.
+	 * @remark Does not check for out of bounds.
+	 * @param Position Where in the chunk to change it. Must be local chunk coordinates.
+	 * @param NewBlock The voxel to replace at that position.
+	 */
 	void ModifyVoxelData(const FIntVector Position, EBlock NewBlock);
 	
 	/**

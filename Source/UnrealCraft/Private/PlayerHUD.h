@@ -10,6 +10,7 @@
 
 class UPlayerHotbarWidget;
 class UInventoryVisualizerWidget;
+
 /**
  * Manages and represents the players' HUD.
  */
@@ -18,13 +19,13 @@ class APlayerHUD : public AHUD
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category="Blueprints")
 	TSubclassOf<UUserWidget> CrosshairWidget = UUserWidget::StaticClass();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category="Blueprints")
 	TSubclassOf<UInventoryVisualizerWidget> InventoryScreenWidgetBlueprint;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category="Blueprints")
 	TSubclassOf<UPlayerHotbarWidget> HotbarWidgetBlueprint;
 
 	
@@ -41,8 +42,4 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-private:
-	
-	
 };

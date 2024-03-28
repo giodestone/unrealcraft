@@ -14,6 +14,11 @@ public:
 	PlayerInventory();
 	virtual ~PlayerInventory() override;
 
+	/**
+	 * The beginning coordinate of the inventory of the row that represents the hotbar.
+	 */
+	virtual FIntVector2 GetHotBarRowStartCoords() const;
+	
 protected:
 	virtual FIntVector2 GetDefaultSize() const override;
 };

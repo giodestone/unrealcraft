@@ -7,7 +7,7 @@
 #include "InventoryVisualizerWidget.h"
 
 /**
- * Generic inventory which stores some amount of items.
+ * Generic inventory which stores some amount of items in memory.
  */
 class Inventory : public IInventoryInterface
 {
@@ -26,6 +26,10 @@ public:
 protected:
 	virtual void SetSize(FIntVector2 Size) override;
 
+	/**
+	 * Get the default size of the inventory.
+	 * @remarks The retrun value of this function should be modified in derived classes if the default size should change.
+	 */
 	virtual FIntVector2 GetDefaultSize() const;
 	
 	/**

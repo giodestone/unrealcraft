@@ -12,7 +12,7 @@ class PlayerInventory;
 class UItemInfoDatabase;
 
 /**
- * 
+ * Logic for when the player is inside of the voxel world.
  */
 UCLASS()
 class AVoxelGameState : public AGameStateBase
@@ -21,25 +21,48 @@ class AVoxelGameState : public AGameStateBase
 
 	InventoryDatabase InventoryDatabase;
 
+	TSharedPtr<PlayerInventory> MainPlayerInventory;
+
 	UPROPERTY()
 	TObjectPtr<UInventoryVisualizerWidget> InventoryVisualizer;
 
-	TSharedPtr<PlayerInventory> MainPlayerInventory;
-
 public:
-	UPROPERTY(EditDefaultsOnly)
+	/**
+	 * Reference to the item info database.
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="References")
 	TObjectPtr<UItemInfoDatabase> ItemInfoDatabase;
 
-	
-	::InventoryDatabase& GetInventoryDatabase() { return InventoryDatabase; }
+	/**
+	 * Reference to the inventory database that stores all inventories for the game.
+	 */
+	::InventoryDatabase& GetInventoryDatabase();
 
-	TObjectPtr<UInventoryVisualizerWidget> GetInventoryVisualizer() const { return InventoryVisualizer; }
-	
-	void SetInventoryVisualizer(TObjectPtr<UInventoryVisualizerWidget> NewInventoryVisualizer) { InventoryVisualizer = NewInventoryVisualizer; }
+	/**
+	 * Reference to the inventory visualiser, which visualises the player and any additional inventories in the world.
+	 */
+	TObjectPtr<UInventoryVisualizerWidget> GetInventoryVisualizer() const;
 
-	TSharedPtr<PlayerInventory> GetPlayerInventory() const { return MainPlayerInventory; }
-	
-	void SetPlayerInventory(TSharedPtr<PlayerInventory> NewPlayerInventory) { MainPlayerInventory = NewPlayerInventory; }
+	/**
+	 * Get the main player's inventory.
+	 */
+	TSharedPtr<PlayerInventory> GetPlayerInventory() const;
 
-	TObjectPtr<UItemInfoDatabase> GetItemInfoDatabase() const { return ItemInfoDatabase; }
+	/**
+	 * Get a reference to the item info database which contains info about every items' icon, stack size etc.
+	 */
+	TObjectPtr<UItemInfoDatabase> GetItemInfoDatabase() const;
+
+	/**
+	 * Set the reference to inventory visualizer.
+	 */
+	void SetInventoryVisualizer(TObjectPtr<UInventoryVisualizerWidget> NewInventoryVisualizer);
+
+	/**
+	 * Set the reference to the main player's inventory.
+	 */
+	void SetPlayerInventory(TSharedPtr<PlayerInventory> NewPlayerInventory);
+
+protected:
+	virtual void BeginPlay() override;
 };

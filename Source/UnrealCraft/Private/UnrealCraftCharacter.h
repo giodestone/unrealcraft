@@ -15,6 +15,9 @@ class ABaseChunk;
 class UUserWidget;
 class UCameraComponent;
 
+/**
+ * Represents the character that the player controls, with specialised logic for it to interact with the world.
+ */
 UCLASS()
 class AUnrealCraftCharacter : public ACharacter
 {
@@ -32,6 +35,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float Reach = 6.f * 100.f;
+
 	
 	AUnrealCraftCharacter();
 
@@ -71,6 +75,14 @@ public:
 	void PlayerInventory();
 
 private:
+	/**
+	 * Place a block in the world.
+	 * @param Chunk The chunk to place the block in.
+	 * @param WorldPos The world position of the location where to place the block in.
+	 * @param HitNormal The normal of the hit.
+	 * @param Block The new type of block that that block should be replaced with.
+	 * @remark The HitNormal should be inverted if attempting to replace a block with air.
+	 */
 	void PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block);
 
 	/**

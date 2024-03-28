@@ -18,16 +18,29 @@ class UUnrealCraftItem : public UObject
 	UPROPERTY(VisibleAnywhere)
 	FString AssociatedItemID;
 
-public:
-	FString GetAssociatedItemID() const;
-	int8 GetCurrentStack() const;
-
-private:
 	UPROPERTY(VisibleAnywhere)
 	int8 CurrentStack;
-public:
-	UUnrealCraftItem();
-	~UUnrealCraftItem();
 
+public:
+	/**
+	 * The item ID, as inside of the UItemInfoDatabase
+	 */
+	FString GetAssociatedItemID() const;
+
+	/**
+	 * How many of the current item are stacked.
+	 * @remark Note datatype.
+	 */
+	int8 GetCurrentStack() const;
+
+
+	UUnrealCraftItem();
+	virtual ~UUnrealCraftItem() override;
+
+	/**
+	 * Initialize the item when created. This must be called.
+	 * @param InAssociatedItemID The ID of the item it represents inside of the UItemInfoDatabase
+	 * @param CurrentStackSize The stack size to start with.
+	 */
 	void Initialize(const FString& InAssociatedItemID, const int8 CurrentStackSize = 1);
 };

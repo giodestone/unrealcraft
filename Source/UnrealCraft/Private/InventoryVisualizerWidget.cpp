@@ -118,10 +118,8 @@ EInventoryVisualiserState UInventoryVisualizerWidget::GetState() const
 	return State;
 }
 
-void UInventoryVisualizerWidget::OnPlayerInventoryAction()
+void UInventoryVisualizerWidget::ChangePlayerInputsToWorld()
 {
-	Hide();
-	
 	if (GetWorld() == nullptr)
 		return;
 		
@@ -278,7 +276,9 @@ FReply UInventoryVisualizerWidget::NativeOnKeyDown(const FGeometry& InGeometry, 
 		if(GetWorld()->GetFirstPlayerController() == nullptr)
 			return FReply::Unhandled();
 
-		OnPlayerInventoryAction();
+		Hide();
+		
+		ChangePlayerInputsToWorld();
 		
 		return FReply::Handled();
 	}

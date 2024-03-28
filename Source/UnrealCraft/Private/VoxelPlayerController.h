@@ -7,7 +7,7 @@
 #include "VoxelPlayerController.generated.h"
 
 /**
- * 
+ * Override for a voxel specific player controller.
  */
 UCLASS()
 class AVoxelPlayerController : public APlayerController

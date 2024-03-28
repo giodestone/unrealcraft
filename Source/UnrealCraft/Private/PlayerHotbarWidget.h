@@ -11,7 +11,7 @@ class UInventoryItemWidget;
 class UInventorySlotWidget;
 class PlayerInventory;
 /**
- * Represents the contents of the players inventory.
+ * Represents the contents of the player's hotbar on screen.
  */
 UCLASS()
 class UPlayerHotbarWidget : public UUserWidget
@@ -41,5 +41,8 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
+	/**
+	 * Spawn one row of slots representing the hotbar portion of the inventory.
+	 */
 	void SpawnSlotsAndItems();
 };

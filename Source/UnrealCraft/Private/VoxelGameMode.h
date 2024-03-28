@@ -7,7 +7,7 @@
 #include "VoxelGameMode.generated.h"
 
 /**
- * 
+ * Overrides for the voxel game mode.
  */
 UCLASS()
 class AVoxelGameMode : public AGameModeBase

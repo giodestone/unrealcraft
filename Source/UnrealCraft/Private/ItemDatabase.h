@@ -8,7 +8,7 @@
 #include "ItemDatabase.generated.h"
 
 /**
- * Contains an editor-friendly way of adding a read-only database of all items in the game.
+ * Contains a read-only database of all items in the game, which can be added in editor.
  */
 UCLASS()
 class UItemInfoDatabase : public UDataAsset
@@ -19,5 +19,11 @@ class UItemInfoDatabase : public UDataAsset
 	TMap<FString, FUnrealCraftItemInfo> Items;
 
 public:
+	/**
+	 * Get an item's info by its ID, as set in editor.
+	 * @param ID The ID of the item.
+	 * @return The item info associated with the ID.
+	 * @remark If the item wasn't found, it returns the first item.
+	 */
 	FUnrealCraftItemInfo GetInfo(const FString& ID) const;
 };

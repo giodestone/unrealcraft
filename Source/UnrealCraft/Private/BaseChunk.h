@@ -19,10 +19,11 @@ class UNREALCRAFT_API ABaseChunk : public AActor
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY()
+	TObjectPtr<UMaterialInterface> Material;
+	
 protected:
-	TObjectPtr<UProceduralMeshComponent> Mesh;
-	TObjectPtr<FastNoise> NoiseGenerator;
-
 	UPROPERTY(VisibleInstanceOnly, Category="Chunk")
 	TObjectPtr<AChunkWorld> ChunkWorld;
 
@@ -32,15 +33,28 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category="Chunk")
 	FIntVector2 ChunkLocation;
 
-public:
+	
+	
+	TObjectPtr<UProceduralMeshComponent> Mesh;
 
+	TObjectPtr<FastNoise> NoiseGenerator;
+	
+public:
+	/**
+	 * Get the chunk location in relation to other chunks.
+	 */
 	const FIntVector2& GetChunkLocation() const { return ChunkLocation; }
 
+	/**
+	 * Get this chunk's size.
+	 */
 	const FIntVector& GetChunkSize() const { return ChunkSize; }
 
+	/**
+	 * Get the chunk world that this chunk is a part of.
+	 */
 	TObjectPtr<AChunkWorld> GetChunkWorld() const { return ChunkWorld; }
-
-	TObjectPtr<UMaterialInterface> Material;
+	
 	
 	ABaseChunk();
 

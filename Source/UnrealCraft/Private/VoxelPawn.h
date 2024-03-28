@@ -6,6 +6,9 @@
 #include "GameFramework/Pawn.h"
 #include "VoxelPawn.generated.h"
 
+/**
+ * Override for a player's pawn.
+ */
 UCLASS()
 class AVoxelPawn : public APawn
 {

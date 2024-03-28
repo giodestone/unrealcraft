@@ -6,11 +6,21 @@
 class VoxelUtils
 {
 public:
+	/**
+	 * Convert a world to the global position of a block.
+	 * @param WorldPosition The world position.
+	 */
 	static FIntVector WorldToBlockPosition(const FVector& WorldPosition)
 	{
 		return FIntVector(WorldPosition / 100.f);
 	}
 
+	/**
+	 * Convert a world position to a local block position in relation to a chunk size.
+	 * @param Position World coordinate.
+	 * @param ChunkSize The size of the target chunk.
+	 * @remark The returned block coordinate may be larger/smaller than the chunk size.
+	 */
 	static FIntVector WorldToLocalBlockPosition(const FVector& Position, const FIntVector& ChunkSize)
 	{
 		const auto ChunkPosition = WorldToChunkPosition(Position, ChunkSize);
@@ -27,6 +37,13 @@ public:
 		return Result;
 	}
 
+	/**
+	 * Convert a world position to a chunk position.
+	 * @param Position The world position.
+	 * @param ChunkSize The size of each chunk.
+	 * @remark The resulting position may be greater than the chunks in the world.
+	 * @remark This function assumes all chunks are the same size.
+	 */
 	static FIntVector WorldToChunkPosition(const FVector& Position, const FIntVector& ChunkSize)
 	{
 		FIntVector Result;

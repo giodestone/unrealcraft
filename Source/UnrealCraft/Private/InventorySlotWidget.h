@@ -27,22 +27,44 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UButton> ButtonWidget;
-	
-	FIntVector2 RepresentedInventoryCoord;
-	
-	TSharedPtr<IInventoryInterface> AssociatedInventory;
-	
-public:
-	FIntVector2 GetRepresentedInventoryCoord() const;
 
-private:
 	UPROPERTY()
 	TObjectPtr<UInventoryVisualizerWidget> OwningInventoryVisualizer;
 
 	UPROPERTY()
 	TObjectPtr<UInventoryItemWidget> CurrentItemWidget;
 	
+	FIntVector2 RepresentedInventoryCoord;
+	
+	TSharedPtr<IInventoryInterface> AssociatedInventory;
+	
 public:
+	/**
+	 * Get the coordinate this slot represents inside the associated inventory.
+	 */
+	FIntVector2 GetRepresentedInventoryCoord() const;
+
+	/**
+	 * Get the currently held widget (if any).
+	 */
+	UInventoryItemWidget* GetCurrentWidget() const;
+
+	/**
+	 * Get the inventory this widget represents.
+	 */
+	TSharedPtr<IInventoryInterface> GetAssociatedInventory() const;
+	
+	/**
+	 * Whether this slot currently contains an item widget.
+	 */
+	bool IsHoldingWidget() const;
+
+	/**
+	 * Initialize this component for the first time. This must be called.
+	 * @param InRepresentedInventoryCoord The coordinate that this inventory represents in the associated inventory.
+	 * @param InOwningInventoryVisualizer Which inventory visualizer this slot belongs to.
+	 * @param InAssociatedInventory The associated inventory this slot represents.
+	 */
 	void InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer, TSharedPtr<IInventoryInterface> InAssociatedInventory);
 
 	/**
@@ -55,19 +77,13 @@ public:
 	 */
 	TObjectPtr<UInventoryItemWidget> RemoveItemWidget();
 
-	/**
-	 * Get the currently held widget (if any).
-	 */
-	UInventoryItemWidget* GetCurrentWidget() const;
-
-	bool IsHoldingWidget() const;
-
-	TSharedPtr<IInventoryInterface> GetAssociatedInventory() const;
-
 protected:
 	virtual void NativeOnInitialized() override;
 
 private:
+	/**
+	 * Callback for when the button is clicked.
+	 */
 	UFUNCTION()
 	void OnButtonClicked();
 };

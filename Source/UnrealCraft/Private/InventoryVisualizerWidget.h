@@ -11,6 +11,9 @@ class UInventorySlotWidget;
 class IInventoryInterface;
 class PlayerInventory;
 
+/**
+ * For representing the visual state of @class UInventoryVisualizerWidget.
+ */
 UENUM(BlueprintType)
 enum EInventoryVisualiserState
 {
@@ -18,7 +21,7 @@ enum EInventoryVisualiserState
 };
 
 /**
- * For visualising the players or world inventory on the screen.
+ * For visualising the player and/or a world inventory.
  */
 UCLASS()
 class UInventoryVisualizerWidget : public UUserWidget
@@ -73,7 +76,19 @@ private:
 	EInventoryVisualiserState State = Hidden;
 
 public:
+	/**
+	 * Toggle display of the player inventory or everything.
+	 * @param InPlayerInventory The player inventory's contents to display.
+	 * @param OutIsMenuDisplayed Whether something is displayed on screen.
+	 */
 	void TogglePlayerInventory(TSharedPtr<PlayerInventory> InPlayerInventory, bool& OutIsMenuDisplayed);
+
+	/**
+	 * Toggle the display of both player and a world/entity inventory.
+	 * @param InPlayerInventory The player inventory's contents to display. 
+	 * @param OtherInventory The other inventory's contents to display.
+	 * @param OutIsMenuDisplayed Whether something is displayed on screen.
+	 */
 	void ToggleBothInventories(TSharedPtr<PlayerInventory> InPlayerInventory, TSharedPtr<IInventoryInterface> OtherInventory, bool& OutIsMenuDisplayed);
 
 	/**
@@ -83,7 +98,7 @@ public:
 	void Hide();
 
 	/**
-	 * For {@link UInventorySlotWidget} to call when its clicked on.
+	 * For {@link UInventorySlotWidget} to call when it's clicked on.
 	 */
 	UFUNCTION()
 	void OnSlotButtonClicked(UInventorySlotWidget* Widget);
@@ -94,8 +109,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EInventoryVisualiserState GetState() const;
 
-	UFUNCTION()
-	void OnPlayerInventoryAction();
+	/**
+	 * Redirect player's input to the world.
+	 * @remark Does not call @link Hide@endlink
+	 */
+	UFUNCTION(BlueprintCallable)
+	void ChangePlayerInputsToWorld();
 
 protected:
 	/**
@@ -118,12 +137,12 @@ private:
 	UPanelWidget* GetPanelSubWidget(UUserWidget* ParentWidget, const FName& PanelWidgetName);
 
 	/**
-	 * Setup a grid of slots and fill with items from the player. 
+	 * Set up a grid of slots and fill with items from the player. 
 	 */
 	void InitPlayerInventoryWidget(TSharedPtr<PlayerInventory> InPlayerInventory);
 
 	/**
-	 * Setup a grid of slots and fill with items from the other inventory.
+	 * Set up a grid of slots and fill with items from the other inventory.
 	 */
 	void InitOtherInventoryWidget(TSharedPtr<IInventoryInterface> OtherInventory);
 
@@ -156,5 +175,8 @@ private:
 	                        SizeOffset = FIntVector2(0, 0));
 
 protected:
+	/**
+	 * Override, which handles the E or I buttons to hide the screen.
+	 */
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 };

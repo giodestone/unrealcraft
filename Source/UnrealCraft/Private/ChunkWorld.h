@@ -18,7 +18,6 @@ class AChunkWorld : public AActor
 {
 	GENERATED_BODY()
 
-	TMap<FIntVector2, TObjectPtr<ABaseChunk>> Chunks;
 public:
 	UPROPERTY(EditAnywhere, Category="Chunk World")
 	TSubclassOf<ABaseChunk> ChunksToSpawn = ABaseChunk::StaticClass(); 
@@ -35,14 +34,28 @@ public:
 	static const FName DefaultChunkTag;
 	
 	TObjectPtr<FastNoise> NoiseGenerator;
-	
 
+private:
+	TMap<FIntVector2, TObjectPtr<ABaseChunk>> Chunks;
+
+public:
 	AChunkWorld();
 	
 	/**
 	 * Get the noise object used to generate new chunks.
 	 */
 	TObjectPtr<FastNoise> GetNoise() const { return NoiseGenerator; }
+	
+	virtual void Tick(float DeltaTime) override;
+
+	/**
+	 * Get the adjacent chunk if possible.
+	 * @param CurrentChunk The current chunk.
+	 * @param Direction Which to check in. -x = Left, -y = Back.
+	 * @param AdjacentChunk Returns the chunk, if found.
+	 * @return True if an adjacent chunk is possible, false if not.
+	 */
+	bool GetAdjacentChunk(TObjectPtr<ABaseChunk> CurrentChunk, EDirection Direction, TObjectPtr<ABaseChunk>& AdjacentChunk);
 
 protected:
 	virtual void BeginPlay() override;
@@ -56,17 +69,5 @@ protected:
 	 * Configure the {@link NoiseGenerator}.
 	 */
 	void ConfigureNoiseGenerator();
-
-public:	
-	virtual void Tick(float DeltaTime) override;
-
-	/**
-	 * Get the adjacent chunk if possible.
-	 * @param CurrentChunk The current chunk.
-	 * @param Direction Which to check in. -x = Left, -y = Back.
-	 * @param AdjacentChunk Returns the chunk, if found.
-	 * @return True if an adjacent chunk is possible, false if not.
-	 */
-	bool GetAdjacentChunk(TObjectPtr<ABaseChunk> CurrentChunk, EDirection Direction, TObjectPtr<ABaseChunk>& AdjacentChunk);
-
+	
 };

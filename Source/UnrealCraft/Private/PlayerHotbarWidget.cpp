@@ -41,8 +41,8 @@ void UPlayerHotbarWidget::SpawnSlotsAndItems()
 	if (RepresentedPlayerInventory == nullptr || InventoryVisualizerWidget == nullptr)
 		return;
 	
-	int32 y = RepresentedPlayerInventory->GetSize().Y - 1;
-	for (int32 x = 0; x < RepresentedPlayerInventory->GetSize().X; x++)
+	int32 y = RepresentedPlayerInventory->GetHotBarRowStartCoords().Y;
+	for (int32 x = RepresentedPlayerInventory->GetHotBarRowStartCoords().X; x < RepresentedPlayerInventory->GetSize().X; x++)
 	{
 		auto NewSlotWidget = Cast<UInventorySlotWidget>(CreateWidget(GetWorld(), SlotBlueprint));
 		NewSlotWidget->InitializeData(FIntVector2(x,y), InventoryVisualizerWidget, RepresentedPlayerInventory);
