@@ -39,6 +39,11 @@ void APlayerHUD::BeginPlay()
 	}
 }
 
+TObjectPtr<UPlayerHotbarWidget> APlayerHUD::GetHotbarWidget() const
+{
+	return HotbarWidget;
+}
+
 void APlayerHUD::DrawHUD()
 {
 	Super::DrawHUD();

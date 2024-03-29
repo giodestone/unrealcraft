@@ -10,19 +10,21 @@
 void UInventorySlotWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
-	if (ButtonWidget == nullptr)
-		ButtonWidget = Cast<UButton>(this->GetWidgetFromName(ButtonWidgetName));
 	
-	if (ButtonWidget == nullptr)
+	if (SlotButton == nullptr)
 		GLog->Log(ELogVerbosity::Error, TEXT("[UInventorySlotWidget::NativeOnInitialized]: Button reference not set. Check the blueprint."));
 	else
-		ButtonWidget->OnClicked.AddDynamic(this, &UInventorySlotWidget::OnButtonClicked);
+		SlotButton->OnClicked.AddDynamic(this, &UInventorySlotWidget::OnButtonClicked);
 }
 
 void UInventorySlotWidget::OnButtonClicked()
 {
 	OwningInventoryVisualizer->OnSlotButtonClicked(this);
+}
+
+TObjectPtr<UPanelWidget> UInventorySlotWidget::GetHotbarCursorParent() const
+{
+	return HotbarCursorParent;
 }
 
 FIntVector2 UInventorySlotWidget::GetRepresentedInventoryCoord() const

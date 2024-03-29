@@ -19,7 +19,7 @@ class AVoxelGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
-	InventoryDatabase InventoryDatabase;
+	TUniquePtr<InventoryDatabase> MainInventoryDatabase;
 
 	TSharedPtr<PlayerInventory> MainPlayerInventory;
 

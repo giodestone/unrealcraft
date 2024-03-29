@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerHotbarWidget.generated.h"
 
+class UHotbarCursorWidget;
 class UInventoryVisualizerWidget;
 class UInventoryItemWidget;
 class UInventorySlotWidget;
@@ -24,17 +25,24 @@ class UPlayerHotbarWidget : public UUserWidget
 	UPROPERTY(EditDefaultsOnly, Category="References")
 	TSubclassOf<UInventoryItemWidget> ItemBlueprint;
 
-	UPROPERTY(EditDefaultsOnly, Category="References")
-	FName SlotParentWidgetName = "SlotParent";
-
-
-	UPROPERTY()
+	UPROPERTY(Transient, VisibleAnywhere, meta = (BindWidget))
+	TObjectPtr<UHotbarCursorWidget> HotbarCursor;
+	
+	
+	UPROPERTY(Transient, VisibleAnywhere, meta = (BindWidget))
 	TObjectPtr<UPanelWidget> SlotParent;
 
 	UPROPERTY()
 	TObjectPtr<UInventoryVisualizerWidget> InventoryVisualizerWidget;
 	
 	TSharedPtr<PlayerInventory> RepresentedPlayerInventory;
+
+	TArray<TObjectPtr<UInventorySlotWidget>> CreatedSlots;
+public:
+	/**
+	 * Update the hotbar cursor to reflect a newly selected slot.
+	 */
+	void UpdateCursorPosition(int32 TargetSelectedSlot);
 	
 protected:
 	virtual void NativeOnInitialized() override;

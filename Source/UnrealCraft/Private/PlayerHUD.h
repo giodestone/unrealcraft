@@ -32,11 +32,20 @@ class APlayerHUD : public AHUD
 	UPROPERTY()
 	TObjectPtr<UPlayerHotbarWidget> HotbarWidget;
 
+private:
 	UPROPERTY()
 	TObjectPtr<UInventoryVisualizerWidget> InventoryScreenWidget;
 
 public:
+	/**
+	 * Get the reference to the inventory screen.
+	 */
 	TObjectPtr<UInventoryVisualizerWidget>& GetInventoryScreenWidget() { return InventoryScreenWidget; }
+
+	/**
+	 * Get the hotbar widget.
+	 */
+	TObjectPtr<UPlayerHotbarWidget> GetHotbarWidget() const;
 
 	virtual void DrawHUD() override;
 

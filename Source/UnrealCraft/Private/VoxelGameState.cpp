@@ -3,13 +3,19 @@
 
 #include "VoxelGameState.h"
 
-#include "GameFramework/PlayerState.h"
+#include "InventoryDatabase.h"
 #include "PlayerInventory.h"
 #include "InventoryVisualizerWidget.h"
 
 InventoryDatabase& AVoxelGameState::GetInventoryDatabase()
 {
-	return InventoryDatabase;
+	if (MainInventoryDatabase == nullptr)
+	{
+		MainInventoryDatabase = MakeUnique<InventoryDatabase>();
+		MainInventoryDatabase->Initialize();
+	}
+	
+	return *MainInventoryDatabase;
 }
 
 TObjectPtr<UInventoryVisualizerWidget> AVoxelGameState::GetInventoryVisualizer() const

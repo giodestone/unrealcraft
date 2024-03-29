@@ -3,21 +3,34 @@
 
 #include "PlayerHotbarWidget.h"
 
+#include "HotbarCursorWidget.h"
 #include "InventoryItemWidget.h"
 #include "InventorySlotWidget.h"
 #include "PlayerInventory.h"
 #include "VoxelGameState.h"
 #include "Components/PanelWidget.h"
 
+void UPlayerHotbarWidget::UpdateCursorPosition(int32 TargetSelectedSlot)
+{
+	if (TargetSelectedSlot < 0 || TargetSelectedSlot > CreatedSlots.Num() - 1)
+	{
+		GLog->Log(ELogVerbosity::Error, TEXT("[UPlayerHotbarWidget::UpdateCursorPosition]: Arg error, TargetSelectedSlot is out of bounds. Cursor position will not be updated."));
+		return;
+	}
+
+	if (CreatedSlots[TargetSelectedSlot]->GetHotbarCursorParent() == nullptr)
+	{
+		GLog->Log(ELogVerbosity::Error, TEXT("[UPlayerHotbarWidget::UpdateCursorPosition]: The selected slot does not have a HotbarCursorParent set. Cursor position will not be updated."));
+		return;
+	}
+	
+	HotbarCursor->AnimateToNewParent(CreatedSlots[TargetSelectedSlot]->GetHotbarCursorParent());
+}
+
 void UPlayerHotbarWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
-	SlotParent = dynamic_cast<UPanelWidget*>(GetWidgetFromName(SlotParentWidgetName));
-
-	if (SlotParent == nullptr)
-		GLog->Log(ELogVerbosity::Error, TEXT("[UPlayerHotbarWidget::NativeOnInitialized]: Unable to find slot parent widget. Check blueprint."));
-
+	
 	if (GetWorld() != nullptr)
 	{
 		if (GetWorld()->GetGameState() != nullptr)
@@ -27,8 +40,10 @@ void UPlayerHotbarWidget::NativeOnInitialized()
 			InventoryVisualizerWidget = GameState->GetInventoryVisualizer();
 		}
 	}
-
+	
 	SpawnSlotsAndItems();
+
+	HotbarCursor->AnimateToNewParent(CreatedSlots[0]->GetHotbarCursorParent());
 }
 
 void UPlayerHotbarWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -40,9 +55,17 @@ void UPlayerHotbarWidget::SpawnSlotsAndItems()
 {
 	if (RepresentedPlayerInventory == nullptr || InventoryVisualizerWidget == nullptr)
 		return;
+
+	if (CreatedSlots.Num() > 0)
+	{
+		GLog->Log(ELogVerbosity::Error, TEXT("[UPlayerHotbarWidget::SpawnSlotsAndItems]: Slots have already been created. This means this function was called twice, and it should not be! No new slots will be created.")); // Though if this becomes an error, add a cleanup function to make it possible to call this multiple times.
+		return;
+	}
+
+	CreatedSlots.Reserve(RepresentedPlayerInventory->GetHotbarSize().X);
 	
 	int32 y = RepresentedPlayerInventory->GetHotBarRowStartCoords().Y;
-	for (int32 x = RepresentedPlayerInventory->GetHotBarRowStartCoords().X; x < RepresentedPlayerInventory->GetSize().X; x++)
+	for (int32 x = RepresentedPlayerInventory->GetHotBarRowStartCoords().X; x < RepresentedPlayerInventory->GetHotbarSize().X; x++)
 	{
 		auto NewSlotWidget = Cast<UInventorySlotWidget>(CreateWidget(GetWorld(), SlotBlueprint));
 		NewSlotWidget->InitializeData(FIntVector2(x,y), InventoryVisualizerWidget, RepresentedPlayerInventory);
@@ -55,5 +78,7 @@ void UPlayerHotbarWidget::SpawnSlotsAndItems()
 			NewSlotWidget->AddItemWidget(NewItemWidget);
 			NewItemWidget->SetRepresentedItem(Item);
 		}
+
+		CreatedSlots.Add(NewSlotWidget);
 	}
 }

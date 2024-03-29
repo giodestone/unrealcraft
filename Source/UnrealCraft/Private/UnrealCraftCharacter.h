@@ -36,6 +36,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Reach = 6.f * 100.f;
 
+private:
+	int32 CurrentlySelectedHotbarSlot = 0;
+
+public:
 	
 	AUnrealCraftCharacter();
 
@@ -73,6 +77,12 @@ public:
 
 	UFUNCTION()
 	void PlayerInventory();
+
+	UFUNCTION()
+	void NextSelectedHotbarItem();
+
+	UFUNCTION()
+	void PreviousSelectedHotbarItem();
 
 private:
 	/**

@@ -13,6 +13,8 @@
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Inventory.h"
+#include "PlayerHotbarWidget.h"
+#include "PlayerInventory.h"
 
 AUnrealCraftCharacter::AUnrealCraftCharacter()
 {
@@ -73,6 +75,9 @@ void AUnrealCraftCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AUnrealCraftCharacter::Interact);
 
 	PlayerInputComponent->BindAction("PlayerInventory", IE_Pressed, this, &AUnrealCraftCharacter::PlayerInventory);
+
+	PlayerInputComponent->BindAction("NextSelectedHotbarItem", IE_Pressed, this, &AUnrealCraftCharacter::NextSelectedHotbarItem);
+	PlayerInputComponent->BindAction("PreviousSelectedHotbarItem", IE_Pressed, this, &AUnrealCraftCharacter::PreviousSelectedHotbarItem);
 }
 
 void AUnrealCraftCharacter::MoveForward(float Value)
@@ -204,6 +209,30 @@ void AUnrealCraftCharacter::PlayerInventory()
 	PlayerHUD->GetInventoryScreenWidget()->TogglePlayerInventory(GameState->GetPlayerInventory(), IsInventoryMenuDisplayed);
 
 	UpdateInteractionMode(IsInventoryMenuDisplayed);
+}
+
+void AUnrealCraftCharacter::NextSelectedHotbarItem()
+{
+	if (CurrentlySelectedHotbarSlot + 1 > GameState->GetPlayerInventory()->GetHotbarSize().X - 1)
+	{
+		CurrentlySelectedHotbarSlot = 0;
+	}
+	else
+		CurrentlySelectedHotbarSlot++;
+
+	PlayerHUD->GetHotbarWidget()->UpdateCursorPosition(CurrentlySelectedHotbarSlot);
+}
+
+void AUnrealCraftCharacter::PreviousSelectedHotbarItem()
+{
+	if (CurrentlySelectedHotbarSlot - 1 < 0)
+	{
+		CurrentlySelectedHotbarSlot =  GameState->GetPlayerInventory()->GetHotbarSize().X - 1;
+	}
+	else
+		CurrentlySelectedHotbarSlot--;
+
+	PlayerHUD->GetHotbarWidget()->UpdateCursorPosition(CurrentlySelectedHotbarSlot);
 }
 
 void AUnrealCraftCharacter::PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block)

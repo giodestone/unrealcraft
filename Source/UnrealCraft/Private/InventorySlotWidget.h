@@ -19,21 +19,22 @@ class UInventorySlotWidget : public UUserWidget
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditDefaultsOnly)
-	FName ButtonWidgetName = "SlotButton";
-	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Transient, VisibleAnywhere, meta = (BindWidget))
 	TObjectPtr<UPanelWidget> ItemParent;
 
-	UPROPERTY()
-	TObjectPtr<UButton> ButtonWidget;
+	UPROPERTY(Transient, VisibleAnywhere, meta = (BindWidget))
+	TObjectPtr<UButton> SlotButton;
 
 	UPROPERTY()
 	TObjectPtr<UInventoryVisualizerWidget> OwningInventoryVisualizer;
 
 	UPROPERTY()
 	TObjectPtr<UInventoryItemWidget> CurrentItemWidget;
-	
+
+	UPROPERTY(Transient, VisibleAnywhere, meta = (BindWidget))
+	TObjectPtr<UPanelWidget> HotbarCursorParent;
+
+private:
 	FIntVector2 RepresentedInventoryCoord;
 	
 	TSharedPtr<IInventoryInterface> AssociatedInventory;
@@ -53,12 +54,18 @@ public:
 	 * Get the inventory this widget represents.
 	 */
 	TSharedPtr<IInventoryInterface> GetAssociatedInventory() const;
+
+	/**
+	 * Get the parent that the hotbar cursor should attach to.
+	 */
+	TObjectPtr<UPanelWidget> GetHotbarCursorParent() const;
 	
 	/**
 	 * Whether this slot currently contains an item widget.
 	 */
 	bool IsHoldingWidget() const;
 
+	
 	/**
 	 * Initialize this component for the first time. This must be called.
 	 * @param InRepresentedInventoryCoord The coordinate that this inventory represents in the associated inventory.
