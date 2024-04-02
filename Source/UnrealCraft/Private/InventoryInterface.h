@@ -38,15 +38,16 @@ public:
 	virtual const FIntVector2 GetSize() const = 0;	
 
 	/**
-	 * Insert Item into anywhere in the inventory.
-	 * @param Item The item to insert.
+	 * Insert Item into anywhere in the inventory, attempting to stack with existing ones if possible.
+	 * @param Item The item to insert. The passed in pointer must not be used anymore as it may not refer to the item in the inventory.
 	 * @return @code true@endcode if item was inserted, @code false@endcode if not.
+	 * @remark If doing anything with the Item afterwards, a new reference to it must be retrived, as the Item pointer may be invalid as it may no longer point to one in the inventory.
 	 */
 	UFUNCTION()
-	virtual bool InsertAnywhere(UUnrealCraftItem* Item) = 0;
+	virtual bool InsertAnywhereStacked(UUnrealCraftItem* Item) = 0;
 
 	/**
-	 * Insert an item into a specific coordiante.
+	 * Insert an item into a specific coordiante that must be empty.
 	 * @param Coord The coordinate to try to insert the item to.
 	 * @param Item The item to insert.
 	 * @return @code true@endcode if item was inserted, @code false@endcode if not.
@@ -62,6 +63,18 @@ public:
 	 */
 	UFUNCTION()
 	virtual bool RemoveFrom(const FIntVector2& Coord, UUnrealCraftItem*& OutItem) = 0;
+
+	/**
+	 * Removes a certain amount of items from a coordiante, if possible.
+	 * @param Coord Coordinate to remove from.
+	 * @param NumToRemove Number to remove.
+	 * @param OutItem Either the newly created item with a stack of NumToRemove; or the items that were already there.
+	 * @return @code true@endcode if it is possible to remove at least NumToRemove. @code false@endcode if not.
+	 * @remark Will create a new item if the stack size is larger than provided. Otherwise, the whole stack is removed.
+	 * @remark Visualisers must be activated manually.
+	 */
+	UFUNCTION()
+	virtual bool RemoveNumberFrom(const FIntVector2& Coord, const int8 NumToRemove, UUnrealCraftItem*& OutItem) = 0;
 
 	/**
 	 * Check whether the inventory has the item, and if so returns a reference to the item.

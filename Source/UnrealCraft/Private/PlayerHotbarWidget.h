@@ -40,9 +40,14 @@ class UPlayerHotbarWidget : public UUserWidget
 	TArray<TObjectPtr<UInventorySlotWidget>> CreatedSlots;
 public:
 	/**
-	 * Update the hotbar cursor to reflect a newly selected slot.
+	 * Update the hotbar cursor to reflect a newly selected slot by the player.
 	 */
-	void UpdateCursorPosition(int32 TargetSelectedSlot);
+	void UpdateCursorPosition();
+
+	/**
+	 * Updates currently displayed items in the hotbar.
+	 */
+	void UpdateItems();
 	
 protected:
 	virtual void NativeOnInitialized() override;
@@ -52,5 +57,5 @@ private:
 	/**
 	 * Spawn one row of slots representing the hotbar portion of the inventory.
 	 */
-	void SpawnSlotsAndItems();
+	void SpawnSlots();
 };

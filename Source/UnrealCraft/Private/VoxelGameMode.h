@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "VoxelGameMode.generated.h"
 
+class IInventoryInterface;
 /**
  * Overrides for the voxel game mode.
  */
@@ -19,4 +20,10 @@ public:
 	
 	virtual void StartPlay() override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+private:
+	/**
+	 * Adds a full stack of all possible items inside of UItemInventoryDatabase.
+	 */
+	void AddInitialItems(IInventoryInterface* TargetInventory);
 };

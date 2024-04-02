@@ -6,9 +6,10 @@
 #include "UnrealCraftItemInfo.h"
 #include "UnrealCraftItem.generated.h"
 
+class UItemInfoDatabase;
 /**
  * An item present in some inventory or dropped item.
- * @remarks Only one object should hold this item when not in transit. Otherwise, the same item will be duplicated across multiple inventories or items.
+ * @remark Only one object should hold this item when not in transit. Otherwise, the same item will be duplicated across multiple inventories or items.
  */
 UCLASS()
 class UUnrealCraftItem : public UObject
@@ -20,6 +21,9 @@ class UUnrealCraftItem : public UObject
 
 	UPROPERTY(VisibleAnywhere)
 	int8 CurrentStack;
+
+	UPROPERTY(VisibleAnywhere)
+	int8 MaxStack;
 
 public:
 	/**
@@ -42,5 +46,17 @@ public:
 	 * @param InAssociatedItemID The ID of the item it represents inside of the UItemInfoDatabase
 	 * @param CurrentStackSize The stack size to start with.
 	 */
-	void Initialize(const FString& InAssociatedItemID, const int8 CurrentStackSize = 1);
+	void Initialize(const FString& InAssociatedItemID,  const int8 CurrentStackSize = 1);
+
+	/**
+	 * Set the stack to be a new value, checking that it can actually be that size.
+	 * @return @code true@endcode if the value can be set, @code false@endcode if not possible (new value negative, zero, or exceeds the max stack).
+	 */
+	bool SetCurrentStackChecked(int8 NewStack, const UItemInfoDatabase* ItemInfoDB);
+
+	/**
+	 * Set the stack value, but without checking if the represented item's stack can be that size. 
+	 * @return @code true@endcode if NewStack is above zero, @code false@endcode if not.
+	 */
+	bool SetCurrentStackUnchecked(int8 NewStack);
 };

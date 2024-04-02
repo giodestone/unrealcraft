@@ -47,8 +47,8 @@ void UInventorySlotWidget::AddItemWidget(UInventoryItemWidget* WidgetToAdd)
 
 TObjectPtr<UInventoryItemWidget> UInventorySlotWidget::RemoveItemWidget()
 {
-	CurrentItemWidget->RemoveFromParent();
 	TObjectPtr<UInventoryItemWidget> RemovedWidget = CurrentItemWidget; // so we can keep a reference to the memory address without breaking anything.
+	CurrentItemWidget->RemoveFromParent();
 	CurrentItemWidget = nullptr;
 	return RemovedWidget;
 }

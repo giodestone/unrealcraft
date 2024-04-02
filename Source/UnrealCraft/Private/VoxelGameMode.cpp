@@ -3,6 +3,7 @@
 
 #include "VoxelGameMode.h"
 
+#include "ItemDatabase.h"
 #include "PlayerHUD.h"
 #include "VoxelGameState.h"
 #include "VoxelPawn.h"
@@ -22,9 +23,6 @@ void AVoxelGameMode::StartPlay()
 {
 	Super::StartPlay();
 	
-	check(GEngine != nullptr);
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Hello World, this is VoxelGameMode!"));
 }
 
 void AVoxelGameMode::PostLogin(APlayerController* NewPlayer)
@@ -43,19 +41,30 @@ void AVoxelGameMode::PostLogin(APlayerController* NewPlayer)
 	
 	if (VoxelGameState == nullptr)
 		return;
-
-	auto InitialItem = NewObject<UUnrealCraftItem>();
-	InitialItem->Initialize("stone");
-
-	auto InitialHotbarItem = NewObject<UUnrealCraftItem>();
-	InitialHotbarItem->Initialize("stone");
 	
 	auto CreatedPlayerInventory = MakeShared<PlayerInventory>();
-	CreatedPlayerInventory->InsertAnywhere(InitialItem);
-	CreatedPlayerInventory->InsertInto(FIntVector2(0, 4), InitialHotbarItem);
 	VoxelGameState->GetInventoryDatabase().AddEntityInventory("Player", CreatedPlayerInventory);
-
 	VoxelGameState->SetPlayerInventory(CreatedPlayerInventory);
 
+	AddInitialItems(&CreatedPlayerInventory.Get());
+
 	// GLog->Logf(ELogVerbosity::Log, TEXT("[]: New Player Joined, name: %s"), NewPlayer->GetName().GetCharArray());
+}
+
+void AVoxelGameMode::AddInitialItems(IInventoryInterface* TargetInventory)
+{
+	if (GetWorld() == nullptr)
+		return;
+
+	if (GetWorld()->GetGameState() == nullptr)
+		return;
+
+	auto VoxelGameState = dynamic_cast<AVoxelGameState*>(GetWorld()->GetGameState());
+
+	for (TTuple<FString, FUnrealCraftItemInfo> Item : VoxelGameState->GetItemInfoDatabase()->GetItems())
+	{
+		auto NewItem = NewObject<UUnrealCraftItem>();
+		NewItem->Initialize(Item.Key, Item.Value.MaxStackSize);
+		TargetInventory->InsertAnywhereStacked(NewItem);
+	}
 }

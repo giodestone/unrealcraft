@@ -10,8 +10,10 @@
 #include "VoxelGameState.h"
 #include "Components/PanelWidget.h"
 
-void UPlayerHotbarWidget::UpdateCursorPosition(int32 TargetSelectedSlot)
+void UPlayerHotbarWidget::UpdateCursorPosition()
 {
+	int32 TargetSelectedSlot = RepresentedPlayerInventory->GetCurrentlySelectedHotbarSlot();
+	
 	if (TargetSelectedSlot < 0 || TargetSelectedSlot > CreatedSlots.Num() - 1)
 	{
 		GLog->Log(ELogVerbosity::Error, TEXT("[UPlayerHotbarWidget::UpdateCursorPosition]: Arg error, TargetSelectedSlot is out of bounds. Cursor position will not be updated."));
@@ -27,6 +29,29 @@ void UPlayerHotbarWidget::UpdateCursorPosition(int32 TargetSelectedSlot)
 	HotbarCursor->AnimateToNewParent(CreatedSlots[TargetSelectedSlot]->GetHotbarCursorParent());
 }
 
+void UPlayerHotbarWidget::UpdateItems()
+{
+	if (CreatedSlots.Num() == 0)
+		return;
+	
+	int32 y = RepresentedPlayerInventory->GetHotBarRowStartCoords().Y;
+	for (int32 x = RepresentedPlayerInventory->GetHotBarRowStartCoords().X; x < RepresentedPlayerInventory->GetHotbarSize().X; x++)
+	{
+		UInventorySlotWidget* CurrentSlot = CreatedSlots[x];
+
+		if (CurrentSlot->GetCurrentWidget() != nullptr)
+			CurrentSlot->RemoveItemWidget(); // dispose of current item.
+		
+		UUnrealCraftItem* Item;
+		if (RepresentedPlayerInventory->HasItem(FIntVector2(x, y), Item))
+		{
+			auto NewItemWidget = Cast<UInventoryItemWidget>(CreateWidget(GetWorld(), ItemBlueprint));
+			CurrentSlot->AddItemWidget(NewItemWidget);
+			NewItemWidget->SetRepresentedItem(Item);
+		}
+	}
+}
+
 void UPlayerHotbarWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -40,8 +65,11 @@ void UPlayerHotbarWidget::NativeOnInitialized()
 			InventoryVisualizerWidget = GameState->GetInventoryVisualizer();
 		}
 	}
+
 	
-	SpawnSlotsAndItems();
+	SpawnSlots();
+
+	UpdateItems();
 
 	HotbarCursor->AnimateToNewParent(CreatedSlots[0]->GetHotbarCursorParent());
 }
@@ -51,7 +79,7 @@ void UPlayerHotbarWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
-void UPlayerHotbarWidget::SpawnSlotsAndItems()
+void UPlayerHotbarWidget::SpawnSlots()
 {
 	if (RepresentedPlayerInventory == nullptr || InventoryVisualizerWidget == nullptr)
 		return;
@@ -70,15 +98,6 @@ void UPlayerHotbarWidget::SpawnSlotsAndItems()
 		auto NewSlotWidget = Cast<UInventorySlotWidget>(CreateWidget(GetWorld(), SlotBlueprint));
 		NewSlotWidget->InitializeData(FIntVector2(x,y), InventoryVisualizerWidget, RepresentedPlayerInventory);
 		SlotParent->AddChild(NewSlotWidget);
-
-		UUnrealCraftItem* Item;
-		if (RepresentedPlayerInventory->HasItem(FIntVector2(x, y), Item))
-		{
-			auto NewItemWidget = Cast<UInventoryItemWidget>(CreateWidget(GetWorld(), ItemBlueprint));
-			NewSlotWidget->AddItemWidget(NewItemWidget);
-			NewItemWidget->SetRepresentedItem(Item);
-		}
-
 		CreatedSlots.Add(NewSlotWidget);
 	}
 }

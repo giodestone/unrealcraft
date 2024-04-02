@@ -12,14 +12,19 @@
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/InputComponent.h"
 #include "Inventory.h"
+#include "ItemDatabase.h"
 #include "PlayerHotbarWidget.h"
 #include "PlayerInventory.h"
+#include "UnrealCraftItem.h"
 
 AUnrealCraftCharacter::AUnrealCraftCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	
 	FPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	check(FPSCameraComponent != nullptr);
 	FPSCameraComponent->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
@@ -74,7 +79,8 @@ void AUnrealCraftCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Hit", IE_Released, this, &AUnrealCraftCharacter::StopHit);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AUnrealCraftCharacter::Interact);
 
-	PlayerInputComponent->BindAction("PlayerInventory", IE_Pressed, this, &AUnrealCraftCharacter::PlayerInventory);
+	PlayerInputComponent->BindAction("TogglePlayerInventory", IE_Pressed, this, &AUnrealCraftCharacter::PlayerInventory);
+	// PlayerInputComponent->BindAction("PlayerInventory", IE_Released, this, &AUnrealCraftCharacter::PlayerInventory);
 
 	PlayerInputComponent->BindAction("NextSelectedHotbarItem", IE_Pressed, this, &AUnrealCraftCharacter::NextSelectedHotbarItem);
 	PlayerInputComponent->BindAction("PreviousSelectedHotbarItem", IE_Pressed, this, &AUnrealCraftCharacter::PreviousSelectedHotbarItem);
@@ -125,12 +131,22 @@ void AUnrealCraftCharacter::StartHit()
 		return;
 
 	ABaseChunk* HitChunk = Cast<ABaseChunk>(HitResult.GetActor());
-
-#if UE_BUILD_DEVELOPMENT
+	
 	check(HitChunk != nullptr)
-#endif
 
+	EBlock HitBlock = HitChunk->GetBlock(
+		VoxelUtils::WorldToLocalBlockPosition(HitResult.Location - HitResult.Normal, HitChunk->GetChunkSize()));
+
+	if (HitBlock == EBlock::Air)
+		return;
+
+	UUnrealCraftItem* WorldItem = NewObject<UUnrealCraftItem>();
+	WorldItem->Initialize(GameState->GetItemInfoDatabase()->GetInfo(HitBlock), 1);
+	GameState->GetPlayerInventory()->InsertAnywhereStacked(WorldItem); // TODO: Handle when not inserted.
+	
 	HitChunk->ModifyVoxel(VoxelUtils::WorldToLocalBlockPosition(HitResult.Location - HitResult.Normal, HitChunk->GetChunkSize()), EBlock::Air);
+
+	PlayerHUD->GetHotbarWidget()->UpdateItems();
 }
 
 void AUnrealCraftCharacter::StopHit()
@@ -178,8 +194,15 @@ void AUnrealCraftCharacter::Interact()
 		break;
 	
 	default:
-		PlaceBlock(HitChunk, HitResult.Location - HitResult.Normal, HitResult.Normal, EBlock::Inventory);
-		break;
+		{
+			UUnrealCraftItem* RemovedItem;
+			if (GameState->GetPlayerInventory()->RemoveNumberFrom(GameState->GetPlayerInventory()->GetCurrentlySelectedHotbarSlotCoords(), 1, RemovedItem))
+			{
+				PlaceBlock(HitChunk, HitResult.Location - HitResult.Normal, HitResult.Normal, GameState->GetItemInfoDatabase()->GetInfo(RemovedItem->GetAssociatedItemID()).BlockType);
+				PlayerHUD->GetHotbarWidget()->UpdateItems();
+			}
+			break;
+		}
 		
 	}
 }
@@ -213,26 +236,26 @@ void AUnrealCraftCharacter::PlayerInventory()
 
 void AUnrealCraftCharacter::NextSelectedHotbarItem()
 {
-	if (CurrentlySelectedHotbarSlot + 1 > GameState->GetPlayerInventory()->GetHotbarSize().X - 1)
+	if (GameState->GetPlayerInventory()->GetCurrentlySelectedHotbarSlot() + 1 > GameState->GetPlayerInventory()->GetHotbarSize().X - 1)
 	{
-		CurrentlySelectedHotbarSlot = 0;
+		GameState->GetPlayerInventory()->SetCurrentlySelectedHotbarSlot(0);
 	}
 	else
-		CurrentlySelectedHotbarSlot++;
+		GameState->GetPlayerInventory()->SetCurrentlySelectedHotbarSlot(GameState->GetPlayerInventory()->GetCurrentlySelectedHotbarSlot() + 1);
 
-	PlayerHUD->GetHotbarWidget()->UpdateCursorPosition(CurrentlySelectedHotbarSlot);
+	PlayerHUD->GetHotbarWidget()->UpdateCursorPosition();
 }
 
 void AUnrealCraftCharacter::PreviousSelectedHotbarItem()
 {
-	if (CurrentlySelectedHotbarSlot - 1 < 0)
+	if (GameState->GetPlayerInventory()->GetCurrentlySelectedHotbarSlot() - 1 < 0)
 	{
-		CurrentlySelectedHotbarSlot =  GameState->GetPlayerInventory()->GetHotbarSize().X - 1;
+		GameState->GetPlayerInventory()->SetCurrentlySelectedHotbarSlot(GameState->GetPlayerInventory()->GetHotbarSize().X - 1);
 	}
 	else
-		CurrentlySelectedHotbarSlot--;
+		GameState->GetPlayerInventory()->SetCurrentlySelectedHotbarSlot(GameState->GetPlayerInventory()->GetCurrentlySelectedHotbarSlot() - 1);
 
-	PlayerHUD->GetHotbarWidget()->UpdateCursorPosition(CurrentlySelectedHotbarSlot);
+	PlayerHUD->GetHotbarWidget()->UpdateCursorPosition();
 }
 
 void AUnrealCraftCharacter::PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPos, const FVector& HitNormal, EBlock Block)

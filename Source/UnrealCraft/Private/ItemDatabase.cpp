@@ -3,6 +3,11 @@
 
 #include "ItemDatabase.h"
 
+const TMap<FString, FUnrealCraftItemInfo>& UItemInfoDatabase::GetItems() const
+{
+	return Items;
+}
+
 FUnrealCraftItemInfo UItemInfoDatabase::GetInfo(const FString& ID) const
 {
 	if (!Items.Contains(ID))
@@ -12,4 +17,15 @@ FUnrealCraftItemInfo UItemInfoDatabase::GetInfo(const FString& ID) const
 	}
 
 	return Items[ID];
+}
+
+FString UItemInfoDatabase::GetInfo(const EBlock Block) const
+{
+	for (TTuple<FString, FUnrealCraftItemInfo> Item : Items)
+	{
+		if (Item.Value.BlockType == Block)
+			return Item.Key;
+	}
+
+	return Items.Array()[0].Key;
 }
