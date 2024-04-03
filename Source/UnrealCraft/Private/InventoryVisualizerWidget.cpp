@@ -17,6 +17,7 @@ void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<PlayerInventor
 	{
 	case Hidden:
 		InitPlayerInventoryWidget(InPlayerInventory);
+		HideSecondaryInventory();
 
 		
 		this->CurrentPlayerInventory = InPlayerInventory;
@@ -33,6 +34,7 @@ void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<PlayerInventor
 		HidePlayerInventory();
 		this->CurrentPlayerInventory = nullptr;
 		OutIsMenuDisplayed = false;
+		ChangePlayerInputsToWorld();
 		State = Hidden;
 		break;
 		
@@ -66,6 +68,7 @@ void UInventoryVisualizerWidget::ToggleBothInventories(TSharedPtr<PlayerInventor
 		HidePlayerInventory();
 		this->CurrentPlayerInventory = nullptr;
 		OutIsMenuDisplayed = false;
+		ChangePlayerInputsToWorld();
 		State = Hidden;
 		break;
 	}
@@ -84,6 +87,7 @@ void UInventoryVisualizerWidget::Hide()
 	case ShowingPlayer:
 		HidePlayerInventory();
 		this->CurrentPlayerInventory = nullptr;
+		ChangePlayerInputsToWorld();
 		State = Hidden;
 		break;
 	}
@@ -96,6 +100,7 @@ void UInventoryVisualizerWidget::OnSlotButtonClicked(UInventorySlotWidget* Widge
 		CurrentHeldItem = Widget->RemoveItemWidget();
 		HeldItemParentPanel->AddChild(CurrentHeldItem);
 		CurrentHeldItem->SetVisibility(ESlateVisibility::HitTestInvisible);
+		CloseButton->SetIsEnabled(false);
 
 		UUnrealCraftItem* RemovedItem; // unused because it is already part of CurrentHeldItem.
 		Widget->GetAssociatedInventory()->RemoveFrom(Widget->GetRepresentedInventoryCoord(), RemovedItem);
@@ -110,6 +115,8 @@ void UInventoryVisualizerWidget::OnSlotButtonClicked(UInventorySlotWidget* Widge
 		CurrentHeldItem->SetVisibility(ESlateVisibility::Visible);
 		Widget->AddItemWidget(CurrentHeldItem);
 		CurrentHeldItem = nullptr;
+
+		CloseButton->SetIsEnabled(true);
 	}
 }
 
@@ -181,6 +188,8 @@ void UInventoryVisualizerWidget::NativeOnInitialized()
 	
 	dynamic_cast<AVoxelGameState*>(GetWorld()->GetGameState())->SetInventoryVisualizer(this);
 	
+	CloseButton->OnClicked.AddDynamic(this, &UInventoryVisualizerWidget::OnCloseButtonClicked);
+	
 	this->SetVisibility(ESlateVisibility::Hidden);
 }
 
@@ -203,7 +212,8 @@ void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TSharedPtr<PlayerInve
 	SpawnInventoryGrid(InPlayerInventory, PlayerInventoryMenuWidget, PlayerInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint, FIntVector2(0, -1));
 
 	PlayerInventoryMenuWidget->SetVisibility(ESlateVisibility::Visible);
-	this->SetVisibility(ESlateVisibility::Visible);
+	this->SetVisibility(DefaultSelfVisibility);
+	this->SetFocus();
 }
 
 void UInventoryVisualizerWidget::InitOtherInventoryWidget(TSharedPtr<IInventoryInterface> OtherInventory)
@@ -211,20 +221,21 @@ void UInventoryVisualizerWidget::InitOtherInventoryWidget(TSharedPtr<IInventoryI
 	CurrentOtherInventory = OtherInventory;
 	SpawnInventoryGrid(OtherInventory, OtherInventoryMenuWidget, OtherInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint);
 
+	OtherInventoryMenuAbsoluteParentWidget->SetVisibility(ESlateVisibility::Visible);
 	OtherInventoryMenuWidget->SetVisibility(ESlateVisibility::Visible);
-	this->SetVisibility(ESlateVisibility::Visible);
+	this->SetVisibility(DefaultSelfVisibility);
 }
 
 void UInventoryVisualizerWidget::HideSecondaryInventory()
 {
 	OtherInventoryMenuWidgetSlotParent->ClearChildren();
-	OtherInventoryMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+	OtherInventoryMenuAbsoluteParentWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInventoryVisualizerWidget::HidePlayerInventory()
 {
 	PlayerInventoryMenuWidgetSlotParent->ClearChildren();
-	this->SetVisibility(ESlateVisibility::Hidden);
+	this->SetVisibility(DefaultSelfInvisibility);
 }
 
 void UInventoryVisualizerWidget::TrackCurrentlyHeldItem()
@@ -262,7 +273,15 @@ void UInventoryVisualizerWidget::SpawnInventoryGrid(TSharedPtr<IInventoryInterfa
 	}
 }
 
-FReply UInventoryVisualizerWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+void UInventoryVisualizerWidget::OnCloseButtonClicked()
+{
+	if (CurrentHeldItem != nullptr)
+		return;
+	
+	Hide();
+}
+
+FReply UInventoryVisualizerWidget::KeyboardShortcutHideInventoryScreen(const FKeyEvent& InKeyEvent)
 {
 	if (State == Hidden)
 		return FReply::Unhandled();
@@ -276,12 +295,20 @@ FReply UInventoryVisualizerWidget::NativeOnKeyDown(const FGeometry& InGeometry, 
 		if(GetWorld()->GetFirstPlayerController() == nullptr)
 			return FReply::Unhandled();
 
+		if (CurrentHeldItem != nullptr)
+			return FReply::Unhandled();
+
 		Hide();
-		
-		ChangePlayerInputsToWorld();
 		
 		return FReply::Handled();
 	}
 
 	return FReply::Unhandled();
+}
+
+FReply UInventoryVisualizerWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	// TODO: This doesn't work when the component isnt focused. That seems wrong.
+	
+	return KeyboardShortcutHideInventoryScreen(InKeyEvent);
 }

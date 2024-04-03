@@ -10,10 +10,15 @@ void APlayerHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Z matters! This ensures things are above/below where they need to be.
+	// * Crosshair must be below any top level UI
+	// * Hotbar widget must be below inventory UI
+	// * Inventory UI must be on top of any game UI
+	
 	auto InstancedCrosshairWidget = CreateWidget(GetWorld(), CrosshairWidget);
 
 	if (InstancedCrosshairWidget != nullptr)
-		InstancedCrosshairWidget->AddToViewport();
+		InstancedCrosshairWidget->AddToViewport(-1);
 
 	if (InventoryScreenWidgetBlueprint == nullptr)
 		GLog->Log(ELogVerbosity::Error, TEXT("[APlayerHUD::BeginPlay]: InventoryScreenWidgetBlueprint not set. Will not instanciate inventory widget."));
@@ -25,9 +30,8 @@ void APlayerHUD::BeginPlay()
 		GLog->Log(ELogVerbosity::Error, TEXT("[APlayerHUD::BeginPlay]: Unable to instance inventory screen."));
 	else
 	{
-		InventoryScreenWidget->AddToViewport();
+		InventoryScreenWidget->AddToViewport(1);
 	}
-
 	
 	HotbarWidget = CreateWidget<UPlayerHotbarWidget>(GetWorld(), HotbarWidgetBlueprint);
 
@@ -35,7 +39,7 @@ void APlayerHUD::BeginPlay()
 		GLog->Log(ELogVerbosity::Error, TEXT("[APlayerHUD::BeginPlay]: Unable to instance inventory screen."));
 	else
 	{
-		HotbarWidget->AddToViewport();
+		HotbarWidget->AddToViewport(0);
 	}
 }
 

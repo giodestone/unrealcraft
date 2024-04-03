@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "InventoryVisualizerWidget.generated.h"
 
+class UButton;
 class UInventoryItemWidget;
 class UInventorySlotWidget;
 class IInventoryInterface;
@@ -35,7 +36,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Blueprints")
 	TSubclassOf<UInventoryItemWidget> InventoryItemBlueprint;
 
-	// Yes getting them by fname seems counterinutive, but the references keep resetting for some reason.
+	UPROPERTY(Transient, Transient, VisibleAnywhere, meta = (BindWidget))
+	TObjectPtr<UPanelWidget> OtherInventoryMenuAbsoluteParentWidget; // The one with the text etc.
+
+	UPROPERTY(Transient, Transient, VisibleAnywhere, meta = (BindWidget))
+	TObjectPtr<UButton> CloseButton; // for closing the GUI.
+	
+	// TODO: Change this to use BindWidget
 	UPROPERTY(EditDefaultsOnly, Category="References")
 	FName PlayerInventoryMenuWidgetName = "PlayerInventoryGrid";
 
@@ -74,6 +81,9 @@ private:
 	TSharedPtr<IInventoryInterface> CurrentOtherInventory;
 	
 	EInventoryVisualiserState State = Hidden;
+
+	const ESlateVisibility DefaultSelfInvisibility = ESlateVisibility::Hidden;
+	const ESlateVisibility DefaultSelfVisibility = ESlateVisibility::SelfHitTestInvisible;
 
 public:
 	/**
@@ -123,6 +133,7 @@ protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 private:
 	/**
@@ -174,9 +185,15 @@ private:
 	void SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint, FIntVector2
 	                        SizeOffset = FIntVector2(0, 0));
 
-protected:
+	/**
+	 * Function to be called when the close button is clicked.
+	 */
+	UFUNCTION()
+	void OnCloseButtonClicked();
+	
 	/**
 	 * Override, which handles the E or I buttons to hide the screen.
 	 */
-	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+	FReply KeyboardShortcutHideInventoryScreen(const FKeyEvent& InKeyEvent);
+	
 };
