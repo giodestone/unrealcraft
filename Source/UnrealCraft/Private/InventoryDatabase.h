@@ -4,20 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "InventoryInterface.h"
+#include "InventoryDatabase.generated.h"
 
 /**
  * Contains information about the various inventories present in the game world at runtime.
  */
-class InventoryDatabase
+UCLASS()
+class UInventoryDatabase : public UObject
 {
-	// These variables can be rolled into one, but it makes it way easier to debug.
+	GENERATED_BODY()
 	
-	TMap<FIntVector, TSharedPtr<IInventoryInterface>> WorldInventories;
-	TMap<FString, TSharedPtr<IInventoryInterface>> EntityInventories;
+	// These variables can be rolled into one, but it makes it way easier to debug.
+	UPROPERTY()
+	TMap<FIntVector, TScriptInterface<IInventoryInterface>> WorldInventories;
+
+	UPROPERTY()
+	TMap<FString, TScriptInterface<IInventoryInterface>> EntityInventories;
 	
 public:
-	InventoryDatabase();
-	~InventoryDatabase();
+	UInventoryDatabase();
+	virtual ~UInventoryDatabase() override;
 
 	/**
 	 * Setup/reset all inventories.
@@ -29,7 +35,7 @@ public:
 	 * @param Coord Where the inventory is located in chunk coordinates.
 	 * @param Inventory The new inventory to add.
 	 */
-	void AddWorldInventory(const FIntVector Coord, const TSharedPtr<IInventoryInterface> Inventory);
+	void AddWorldInventory(const FIntVector Coord, const TScriptInterface<IInventoryInterface> Inventory);
 
 	/**
 	 * Add a new entity inventory that is present in the game world.
@@ -37,20 +43,20 @@ public:
 	 * @param ID The ID of the inventory. This will be used to retrieve it later.
 	 * @param Inventory The new inventory.
 	 */
-	void AddEntityInventory(const FString ID, const TSharedPtr<IInventoryInterface> Inventory);
+	void AddEntityInventory(const FString ID, const TScriptInterface<IInventoryInterface> Inventory);
 	
 	/**
 	 * Get an inventory present in the block world.
 	 * @return True if it exists, false if it doesn't.
 	 */
-	bool GetWorldInventory(const FIntVector& Coord, TSharedPtr<IInventoryInterface>& OutInventory) const;
+	bool GetWorldInventory(const FIntVector& Coord, TScriptInterface<IInventoryInterface>& OutInventory) const;
 
 	/**
 	 * Get an inventory outside the block world.
 	 * @return True if it exists, false if it doesn't.
 	 * @remark For ID use "Player" if getting the player inventory.
 	 */
-	bool GetEntityInventory(const FString& ID, TSharedPtr<IInventoryInterface>& OutInventory) const;
+	bool GetEntityInventory(const FString& ID, TScriptInterface<IInventoryInterface>& OutInventory) const;
 
 	/**
 	 * Whether an entity nventory with a specific ID exists.

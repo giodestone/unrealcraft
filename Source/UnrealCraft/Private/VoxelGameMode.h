@@ -25,5 +25,5 @@ private:
 	/**
 	 * Adds a full stack of all possible items inside of UItemInventoryDatabase.
 	 */
-	void AddInitialItems(IInventoryInterface* TargetInventory);
+	void AddInitialItems(TScriptInterface<IInventoryInterface> TargetInventory);
 };

@@ -5,20 +5,24 @@
 #include "CoreMinimal.h"
 #include "InventoryInterface.h"
 #include "InventoryVisualizerWidget.h"
+#include "Inventory.generated.h"
 
 /**
  * Generic inventory which stores some amount of items in memory.
  */
-class Inventory : public IInventoryInterface
+UCLASS()
+class UInventory : public UObject, public IInventoryInterface
 {
+	GENERATED_BODY()
+	
 	UPROPERTY()
 	TMap<FIntVector2, TObjectPtr<UUnrealCraftItem>> Items;
 	
 	FIntVector2 InventorySize;
 
 public:
-	Inventory();
-	virtual ~Inventory() override;
+	UInventory();
+	virtual ~UInventory() override;
 	virtual bool InsertAnywhereStacked(UUnrealCraftItem* Item) override;
 	virtual bool InsertInto(const FIntVector2& Coord, UUnrealCraftItem* Item) override;
 	virtual bool RemoveFrom(const FIntVector2& Coord, UUnrealCraftItem*& OutItem) override;

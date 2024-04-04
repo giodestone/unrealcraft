@@ -11,7 +11,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
 
-void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<PlayerInventory> InPlayerInventory, bool& OutIsMenuDisplayed)
+void UInventoryVisualizerWidget::TogglePlayerInventory(TObjectPtr<UPlayerInventory> InPlayerInventory, bool& OutIsMenuDisplayed)
 {
 	switch (State)
 	{
@@ -43,8 +43,8 @@ void UInventoryVisualizerWidget::TogglePlayerInventory(TSharedPtr<PlayerInventor
 	// PlayerInventoryMenuWidget->WidgetTree->GetAllWidgets(Children);
 }
 
-void UInventoryVisualizerWidget::ToggleBothInventories(TSharedPtr<PlayerInventory> InPlayerInventory,
-                                                     TSharedPtr<IInventoryInterface> OtherInventory,
+void UInventoryVisualizerWidget::ToggleBothInventories(TObjectPtr<UPlayerInventory> InPlayerInventory,
+                                                     TScriptInterface<IInventoryInterface> OtherInventory,
                                                      bool& OutIsMenuDisplayed)
 {
 	switch (State)
@@ -206,7 +206,7 @@ void UInventoryVisualizerWidget::NativeTick(const FGeometry& MyGeometry, float I
 }
 
 
-void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TSharedPtr<PlayerInventory> InPlayerInventory)
+void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TObjectPtr<UPlayerInventory> InPlayerInventory)
 {
 	CurrentPlayerInventory = InPlayerInventory;
 	SpawnInventoryGrid(InPlayerInventory, PlayerInventoryMenuWidget, PlayerInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint, FIntVector2(0, -1));
@@ -216,7 +216,7 @@ void UInventoryVisualizerWidget::InitPlayerInventoryWidget(TSharedPtr<PlayerInve
 	this->SetFocus();
 }
 
-void UInventoryVisualizerWidget::InitOtherInventoryWidget(TSharedPtr<IInventoryInterface> OtherInventory)
+void UInventoryVisualizerWidget::InitOtherInventoryWidget(TScriptInterface<IInventoryInterface> OtherInventory)
 {
 	CurrentOtherInventory = OtherInventory;
 	SpawnInventoryGrid(OtherInventory, OtherInventoryMenuWidget, OtherInventoryMenuWidgetSlotParent, InventorySlotBlueprint, InventoryItemBlueprint);
@@ -251,7 +251,7 @@ void UInventoryVisualizerWidget::TrackCurrentlyHeldItem()
 	}
 }
 
-void UInventoryVisualizerWidget::SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint, FIntVector2
+void UInventoryVisualizerWidget::SpawnInventoryGrid(TScriptInterface<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint, FIntVector2
                                                     SizeOffset)
 {
 	for (int32 x = 0; x < Inventory->GetSize().X + SizeOffset.X; x++)

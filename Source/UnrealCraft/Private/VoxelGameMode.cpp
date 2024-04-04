@@ -42,16 +42,16 @@ void AVoxelGameMode::PostLogin(APlayerController* NewPlayer)
 	if (VoxelGameState == nullptr)
 		return;
 	
-	auto CreatedPlayerInventory = MakeShared<PlayerInventory>();
+	TObjectPtr<UPlayerInventory> CreatedPlayerInventory = NewObject<UPlayerInventory>();
 	VoxelGameState->GetInventoryDatabase().AddEntityInventory("Player", CreatedPlayerInventory);
 	VoxelGameState->SetPlayerInventory(CreatedPlayerInventory);
 
-	AddInitialItems(&CreatedPlayerInventory.Get());
+	AddInitialItems(CreatedPlayerInventory);
 
 	// GLog->Logf(ELogVerbosity::Log, TEXT("[]: New Player Joined, name: %s"), NewPlayer->GetName().GetCharArray());
 }
 
-void AVoxelGameMode::AddInitialItems(IInventoryInterface* TargetInventory)
+void AVoxelGameMode::AddInitialItems(TScriptInterface<IInventoryInterface> TargetInventory)
 {
 	if (GetWorld() == nullptr)
 		return;

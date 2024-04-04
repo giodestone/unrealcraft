@@ -10,7 +10,7 @@ class UHotbarCursorWidget;
 class UInventoryVisualizerWidget;
 class UInventoryItemWidget;
 class UInventorySlotWidget;
-class PlayerInventory;
+class UPlayerInventory;
 /**
  * Represents the contents of the player's hotbar on screen.
  */
@@ -34,9 +34,11 @@ class UPlayerHotbarWidget : public UUserWidget
 
 	UPROPERTY()
 	TObjectPtr<UInventoryVisualizerWidget> InventoryVisualizerWidget;
-	
-	TSharedPtr<PlayerInventory> RepresentedPlayerInventory;
 
+	UPROPERTY()
+	TObjectPtr<UPlayerInventory> RepresentedPlayerInventory;
+
+	UPROPERTY()
 	TArray<TObjectPtr<UInventorySlotWidget>> CreatedSlots;
 public:
 	/**

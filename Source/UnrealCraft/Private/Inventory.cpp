@@ -10,16 +10,16 @@
 #include "ItemDatabase.h"
 #include "UnrealCraftItem.h"
 
-Inventory::Inventory()
+UInventory::UInventory()
 {
 	SetSize(GetDefaultSize());
 }
 
-Inventory::~Inventory()
+UInventory::~UInventory()
 {
 }
 
-bool Inventory::InsertAnywhereStacked(UUnrealCraftItem* Item)
+bool UInventory::InsertAnywhereStacked(UUnrealCraftItem* Item)
 {
 	// while numToInsert > 0
 	//	if found coord of non full stack
@@ -134,7 +134,7 @@ bool Inventory::InsertAnywhereStacked(UUnrealCraftItem* Item)
 	// return false;
 }
 
-bool Inventory::InsertInto(const FIntVector2& Coord, UUnrealCraftItem* Item)
+bool UInventory::InsertInto(const FIntVector2& Coord, UUnrealCraftItem* Item)
 {
 	if (!IsCoordInBounds(Coord))
 		return false;
@@ -149,7 +149,7 @@ bool Inventory::InsertInto(const FIntVector2& Coord, UUnrealCraftItem* Item)
 	return true;
 }
 
-bool Inventory::RemoveFrom(const FIntVector2& Coord, UUnrealCraftItem*& OutItem)
+bool UInventory::RemoveFrom(const FIntVector2& Coord, UUnrealCraftItem*& OutItem)
 {
 	TObjectPtr<UUnrealCraftItem> RemovedItem;
 	auto ReturnValue = Items.RemoveAndCopyValue(Coord, RemovedItem);
@@ -157,12 +157,12 @@ bool Inventory::RemoveFrom(const FIntVector2& Coord, UUnrealCraftItem*& OutItem)
 	return ReturnValue;
 }
 
-const FIntVector2 Inventory::GetSize() const
+const FIntVector2 UInventory::GetSize() const
 {
 	return InventorySize;
 }
 
-bool Inventory::HasItem(const FIntVector2& Coord, UUnrealCraftItem*& OutItem) const
+bool UInventory::HasItem(const FIntVector2& Coord, UUnrealCraftItem*& OutItem) const
 {
 	if (!IsCoordInBounds(Coord))
 		return false;
@@ -174,7 +174,7 @@ bool Inventory::HasItem(const FIntVector2& Coord, UUnrealCraftItem*& OutItem) co
 	return true;
 }
 
-bool Inventory::RemoveNumberFrom(const FIntVector2& Coord, const int8 NumToRemove, UUnrealCraftItem*& OutItem)
+bool UInventory::RemoveNumberFrom(const FIntVector2& Coord, const int8 NumToRemove, UUnrealCraftItem*& OutItem)
 {
 	UUnrealCraftItem* HasItemOut;
 	if (!HasItem(Coord, HasItemOut))
@@ -197,7 +197,7 @@ bool Inventory::RemoveNumberFrom(const FIntVector2& Coord, const int8 NumToRemov
 	return true;
 }
 
-void Inventory::SetSize(FIntVector2 Size)
+void UInventory::SetSize(FIntVector2 Size)
 {
 	for (auto ItemTuple : Items)
 	{
@@ -212,17 +212,17 @@ void Inventory::SetSize(FIntVector2 Size)
 	this->InventorySize = Size;
 }
 
-FIntVector2 Inventory::GetDefaultSize() const
+FIntVector2 UInventory::GetDefaultSize() const
 {
 	return FIntVector2(9, 4);
 }
 
-bool Inventory::IsCoordInBounds(const FIntVector2& Coord) const
+bool UInventory::IsCoordInBounds(const FIntVector2& Coord) const
 {
 	return Coord.X < InventorySize.X && Coord.Y < InventorySize.Y && Coord.X >= 0 && Coord.Y >= 0;
 }
 
-bool Inventory::GetCoordOfNonFullStack(const UUnrealCraftItem* Item, FIntVector2& OutCoord) const
+bool UInventory::GetCoordOfNonFullStack(const UUnrealCraftItem* Item, FIntVector2& OutCoord) const
 {
 	for (int32 x = 0; x < GetSize().X; x++)
 	{
@@ -255,7 +255,7 @@ bool Inventory::GetCoordOfNonFullStack(const UUnrealCraftItem* Item, FIntVector2
 	return false;
 }
 
-bool Inventory::GetFirstEmptyCoord(FIntVector2& OutCoord) const
+bool UInventory::GetFirstEmptyCoord(FIntVector2& OutCoord) const
 {
 	// TODO: Consider optimising by adding start x, start y; end x, end y.
 	

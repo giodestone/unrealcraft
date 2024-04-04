@@ -10,7 +10,7 @@ class UButton;
 class UInventoryItemWidget;
 class UInventorySlotWidget;
 class IInventoryInterface;
-class PlayerInventory;
+class UPlayerInventory;
 
 /**
  * For representing the visual state of @class UInventoryVisualizerWidget.
@@ -76,9 +76,11 @@ private:
 	UPROPERTY()
 	TObjectPtr<UInventoryItemWidget> CurrentHeldItem;
 
-	
-	TSharedPtr<PlayerInventory> CurrentPlayerInventory;
-	TSharedPtr<IInventoryInterface> CurrentOtherInventory;
+	UPROPERTY()
+	TObjectPtr<UPlayerInventory> CurrentPlayerInventory;
+
+	UPROPERTY()
+	TScriptInterface<IInventoryInterface> CurrentOtherInventory;
 	
 	EInventoryVisualiserState State = Hidden;
 
@@ -91,7 +93,7 @@ public:
 	 * @param InPlayerInventory The player inventory's contents to display.
 	 * @param OutIsMenuDisplayed Whether something is displayed on screen.
 	 */
-	void TogglePlayerInventory(TSharedPtr<PlayerInventory> InPlayerInventory, bool& OutIsMenuDisplayed);
+	void TogglePlayerInventory(TObjectPtr<UPlayerInventory> InPlayerInventory, bool& OutIsMenuDisplayed);
 
 	/**
 	 * Toggle the display of both player and a world/entity inventory.
@@ -99,7 +101,7 @@ public:
 	 * @param OtherInventory The other inventory's contents to display.
 	 * @param OutIsMenuDisplayed Whether something is displayed on screen.
 	 */
-	void ToggleBothInventories(TSharedPtr<PlayerInventory> InPlayerInventory, TSharedPtr<IInventoryInterface> OtherInventory, bool& OutIsMenuDisplayed);
+	void ToggleBothInventories(TObjectPtr<UPlayerInventory> InPlayerInventory, TScriptInterface<IInventoryInterface> OtherInventory, bool& OutIsMenuDisplayed);
 
 	/**
 	 * Hides all visible UI.
@@ -150,12 +152,12 @@ private:
 	/**
 	 * Set up a grid of slots and fill with items from the player. 
 	 */
-	void InitPlayerInventoryWidget(TSharedPtr<PlayerInventory> InPlayerInventory);
+	void InitPlayerInventoryWidget(TObjectPtr<UPlayerInventory> InPlayerInventory);
 
 	/**
 	 * Set up a grid of slots and fill with items from the other inventory.
 	 */
-	void InitOtherInventoryWidget(TSharedPtr<IInventoryInterface> OtherInventory);
+	void InitOtherInventoryWidget(TScriptInterface<IInventoryInterface> OtherInventory);
 
 	/**
 	 * Hide the secondary inventory and destory the slots.
@@ -182,7 +184,7 @@ private:
 	 * @param ItemBlueprint The items that would be put into the slots, if they are in the inventory.
 	 * @param SizeOffset This value is added to the {@link Inventory.GetSize()}. Can be used to increase/decrease the values.
 	 */
-	void SpawnInventoryGrid(TSharedPtr<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint, FIntVector2
+	void SpawnInventoryGrid(TScriptInterface<IInventoryInterface> Inventory, UUserWidget* GridMenuWidget, UPanelWidget* SlotParent, TSubclassOf<UInventorySlotWidget> SlotBlueprint, TSubclassOf<UInventoryItemWidget> ItemBlueprint, FIntVector2
 	                        SizeOffset = FIntVector2(0, 0));
 
 	/**

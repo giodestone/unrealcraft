@@ -7,11 +7,11 @@
 #include "PlayerInventory.h"
 #include "InventoryVisualizerWidget.h"
 
-InventoryDatabase& AVoxelGameState::GetInventoryDatabase()
+UInventoryDatabase& AVoxelGameState::GetInventoryDatabase()
 {
 	if (MainInventoryDatabase == nullptr)
 	{
-		MainInventoryDatabase = MakeUnique<InventoryDatabase>();
+		MainInventoryDatabase = NewObject<UInventoryDatabase>();
 		MainInventoryDatabase->Initialize();
 	}
 	
@@ -21,7 +21,7 @@ InventoryDatabase& AVoxelGameState::GetInventoryDatabase()
 TObjectPtr<UInventoryVisualizerWidget> AVoxelGameState::GetInventoryVisualizer() const
 { return InventoryVisualizer; }
 
-TSharedPtr<PlayerInventory> AVoxelGameState::GetPlayerInventory() const
+TObjectPtr<UPlayerInventory> AVoxelGameState::GetPlayerInventory() const
 {
 	return MainPlayerInventory;
 }
@@ -31,7 +31,7 @@ void AVoxelGameState::SetInventoryVisualizer(TObjectPtr<UInventoryVisualizerWidg
 	InventoryVisualizer = NewInventoryVisualizer;
 }
 
-void AVoxelGameState::SetPlayerInventory(TSharedPtr<PlayerInventory> NewPlayerInventory)
+void AVoxelGameState::SetPlayerInventory(TObjectPtr<UPlayerInventory> NewPlayerInventory)
 {
 	MainPlayerInventory = NewPlayerInventory;
 }

@@ -182,7 +182,7 @@ void AUnrealCraftCharacter::Interact()
 	{
 	case EBlock::Inventory:
 		{
-			TSharedPtr<IInventoryInterface> WorldInventory;
+			TScriptInterface<IInventoryInterface> WorldInventory;
 			if (GameState->GetInventoryDatabase().GetWorldInventory(VoxelUtils::WorldToBlockPosition(HitResult.Location - HitResult.Normal), WorldInventory))
 			{
 				bool IsInventoryMenuDisplayed;
@@ -263,7 +263,7 @@ void AUnrealCraftCharacter::PlaceBlock(ABaseChunk* Chunk, const FVector& WorldPo
 	switch (Block)
 	{
 	case EBlock::Inventory:
-		GetWorld()->GetGameState<AVoxelGameState>()->GetInventoryDatabase().AddWorldInventory(VoxelUtils::WorldToBlockPosition(WorldPos) + FIntVector(HitNormal), MakeShared<Inventory>());
+		GetWorld()->GetGameState<AVoxelGameState>()->GetInventoryDatabase().AddWorldInventory(VoxelUtils::WorldToBlockPosition(WorldPos) + FIntVector(HitNormal), NewObject<UInventory>());
 		// goto default;
 	default:
 		Chunk->ModifyVoxel(VoxelUtils::WorldToLocalBlockPosition(WorldPos, Chunk->GetChunkSize()) + FIntVector(HitNormal), Block);

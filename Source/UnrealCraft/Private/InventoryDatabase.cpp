@@ -3,31 +3,31 @@
 
 #include "InventoryDatabase.h"
 
-InventoryDatabase::InventoryDatabase()
+UInventoryDatabase::UInventoryDatabase()
 {
 }
 
-InventoryDatabase::~InventoryDatabase()
+UInventoryDatabase::~UInventoryDatabase()
 {
 }
 
-void InventoryDatabase::Initialize()
+void UInventoryDatabase::Initialize()
 {
 	EntityInventories.Empty();
 	WorldInventories.Empty();
 }
 
-void InventoryDatabase::AddWorldInventory(const FIntVector Coord, const TSharedPtr<IInventoryInterface> Inventory)
+void UInventoryDatabase::AddWorldInventory(const FIntVector Coord, const TScriptInterface<IInventoryInterface> Inventory)
 {
 	WorldInventories.Add(Coord, Inventory);
 }
 
-void InventoryDatabase::AddEntityInventory(const FString ID, const TSharedPtr<IInventoryInterface> Inventory)
+void UInventoryDatabase::AddEntityInventory(const FString ID, const TScriptInterface<IInventoryInterface> Inventory)
 {
 	EntityInventories.Add(ID, Inventory);
 }
 
-bool InventoryDatabase::GetWorldInventory(const FIntVector& Coord, TSharedPtr<IInventoryInterface>& OutInventory) const
+bool UInventoryDatabase::GetWorldInventory(const FIntVector& Coord, TScriptInterface<IInventoryInterface>& OutInventory) const
 {
 	if (!WorldInventories.Contains(Coord))
 		return false;
@@ -37,7 +37,7 @@ bool InventoryDatabase::GetWorldInventory(const FIntVector& Coord, TSharedPtr<II
 	return true;
 }
 
-bool InventoryDatabase::GetEntityInventory(const FString& ID, TSharedPtr<IInventoryInterface>& OutInventory) const
+bool UInventoryDatabase::GetEntityInventory(const FString& ID, TScriptInterface<IInventoryInterface>& OutInventory) const
 {
 		if (!EntityInventories.Contains(ID))
     		return false;
@@ -47,7 +47,7 @@ bool InventoryDatabase::GetEntityInventory(const FString& ID, TSharedPtr<IInvent
     	return true;
 }
 
-bool InventoryDatabase::DoesEntityInventoryExist(const FString& ID) const
+bool UInventoryDatabase::DoesEntityInventoryExist(const FString& ID) const
 {
 	return EntityInventories.Contains(ID);
 }

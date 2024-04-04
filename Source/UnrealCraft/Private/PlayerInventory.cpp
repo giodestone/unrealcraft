@@ -3,40 +3,40 @@
 
 #include "PlayerInventory.h"
 
-PlayerInventory::PlayerInventory()
+UPlayerInventory::UPlayerInventory()
 {
 	SetSize(GetDefaultSize());
 
 	HotbarSize = FIntVector2(GetSize().X, 1);
 }
 
-PlayerInventory::~PlayerInventory()
+UPlayerInventory::~UPlayerInventory()
 {
 }
 
-FIntVector2 PlayerInventory::GetHotBarRowStartCoords() const
+FIntVector2 UPlayerInventory::GetHotBarRowStartCoords() const
 {
 	return FIntVector2(0, GetSize().Y - 1);
 }
 
-const FIntVector2& PlayerInventory::GetHotbarSize() const
+const FIntVector2& UPlayerInventory::GetHotbarSize() const
 {
 	return HotbarSize;
 }
 
-int32 PlayerInventory::GetCurrentlySelectedHotbarSlot() const
+int32 UPlayerInventory::GetCurrentlySelectedHotbarSlot() const
 {
 	return CurrentlySelectedHotbarSlot;
 }
 
-FIntVector2 PlayerInventory::GetCurrentlySelectedHotbarSlotCoords() const
+FIntVector2 UPlayerInventory::GetCurrentlySelectedHotbarSlotCoords() const
 {
 	auto StartCoords = GetHotBarRowStartCoords();
 	StartCoords.X = GetCurrentlySelectedHotbarSlot();
 	return StartCoords;
 }
 
-bool PlayerInventory::SetCurrentlySelectedHotbarSlot(int32 NewlySelectedSlot)
+bool UPlayerInventory::SetCurrentlySelectedHotbarSlot(int32 NewlySelectedSlot)
 {
 	if (NewlySelectedSlot < 0 || NewlySelectedSlot > HotbarSize.X - 1)
 	{
@@ -48,7 +48,7 @@ bool PlayerInventory::SetCurrentlySelectedHotbarSlot(int32 NewlySelectedSlot)
 	return true;
 }
 
-FIntVector2 PlayerInventory::GetDefaultSize() const
+FIntVector2 UPlayerInventory::GetDefaultSize() const
 {
 	return FIntVector2(9, 5); // Last is for hotbar.
 }

@@ -6,9 +6,9 @@
 #include "InventoryDatabase.h"
 #include "GameFramework/GameStateBase.h"
 #include "InventoryVisualizerWidget.h"
+#include "PlayerInventory.h"
 #include "VoxelGameState.generated.h"
 
-class PlayerInventory;
 class UItemInfoDatabase;
 
 /**
@@ -19,9 +19,11 @@ class AVoxelGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
-	TUniquePtr<InventoryDatabase> MainInventoryDatabase;
+	UPROPERTY()
+	TObjectPtr<UInventoryDatabase> MainInventoryDatabase;
 
-	TSharedPtr<PlayerInventory> MainPlayerInventory;
+	UPROPERTY()
+	TObjectPtr<class UPlayerInventory> MainPlayerInventory;
 
 	UPROPERTY()
 	TObjectPtr<UInventoryVisualizerWidget> InventoryVisualizer;
@@ -36,7 +38,7 @@ public:
 	/**
 	 * Reference to the inventory database that stores all inventories for the game.
 	 */
-	::InventoryDatabase& GetInventoryDatabase();
+	::UInventoryDatabase& GetInventoryDatabase();
 
 	/**
 	 * Reference to the inventory visualiser, which visualises the player and any additional inventories in the world.
@@ -46,7 +48,7 @@ public:
 	/**
 	 * Get the main player's inventory.
 	 */
-	TSharedPtr<PlayerInventory> GetPlayerInventory() const;
+	TObjectPtr<UPlayerInventory> GetPlayerInventory() const;
 
 	/**
 	 * Get a reference to the item info database which contains info about every items' icon, stack size etc.
@@ -61,7 +63,7 @@ public:
 	/**
 	 * Set the reference to the main player's inventory.
 	 */
-	void SetPlayerInventory(TSharedPtr<PlayerInventory> NewPlayerInventory);
+	void SetPlayerInventory(TObjectPtr<UPlayerInventory> NewPlayerInventory);
 
 protected:
 	virtual void BeginPlay() override;

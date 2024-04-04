@@ -37,7 +37,7 @@ private:
 private:
 	FIntVector2 RepresentedInventoryCoord;
 	
-	TSharedPtr<IInventoryInterface> AssociatedInventory;
+	TScriptInterface<IInventoryInterface> AssociatedInventory;
 	
 public:
 	/**
@@ -53,7 +53,7 @@ public:
 	/**
 	 * Get the inventory this widget represents.
 	 */
-	TSharedPtr<IInventoryInterface> GetAssociatedInventory() const;
+	TScriptInterface<IInventoryInterface> GetAssociatedInventory() const;
 
 	/**
 	 * Get the parent that the hotbar cursor should attach to.
@@ -72,7 +72,7 @@ public:
 	 * @param InOwningInventoryVisualizer Which inventory visualizer this slot belongs to.
 	 * @param InAssociatedInventory The associated inventory this slot represents.
 	 */
-	void InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer, TSharedPtr<IInventoryInterface> InAssociatedInventory);
+	void InitializeData(FIntVector2 InRepresentedInventoryCoord, UInventoryVisualizerWidget* InOwningInventoryVisualizer, TScriptInterface<IInventoryInterface> InAssociatedInventory);
 
 	/**
 	 * Add a widget to be held by this widget.

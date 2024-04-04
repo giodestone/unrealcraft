@@ -4,19 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Inventory.h"
+#include "PlayerInventory.generated.h"
 
 /**
  * For representing a players' inventory.
  */
-class PlayerInventory : public Inventory
+UCLASS()
+class UPlayerInventory : public UInventory
 {
+	GENERATED_BODY()
+	
 	FIntVector2 HotbarSize;
 
 	int32 CurrentlySelectedHotbarSlot = 0;
 	
 public:
-	PlayerInventory();
-	virtual ~PlayerInventory() override;
+	UPlayerInventory();
+	virtual ~UPlayerInventory() override;
 
 	/**
 	 * The beginning coordinate of the inventory of the row that represents the hotbar.
