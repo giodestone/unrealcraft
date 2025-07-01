@@ -7,7 +7,7 @@ A voxel game made in Unreal Engine 5 using C++, aiming to replicate basic Minecr
 #### Features
 * Procedurally generated finite voxel world which can be modified by the player.
 * Basic inventory system which allows you to create chests, move items into them, and place items from your inventory into the world.
-* Character which can be controller.
+* First person character controller.
 * Programmed with C++ exclusively.
 * Utilizes DataAssets, UPROPERTY(), Blueprints to make adding gameplay addition easy.
 
@@ -29,7 +29,7 @@ A voxel game made in Unreal Engine 5 using C++, aiming to replicate basic Minecr
 
 ![Image of generated landscape.](https://raw.githubusercontent.com/giodestone/unrealcraft/main/Images/Image1.jpg)
 
-The goal of this project is to ultimately try to replicate basic Minecraft Survival inventory management, block modification, day/night cycle, sounds using C++ and Unreal Engine features to ease the addition of new gameplay elements, such as new blocks or items.
+The goal of this project is to eventually try to replicate basic Minecraft Survival inventory management, block modification, day/night cycle, sounds using C++ and Unreal Engine features to ease the addition of new gameplay elements, such as new blocks or items. At present, it has world generation, building, and inventory management.
 
 ### World Generation.
 
